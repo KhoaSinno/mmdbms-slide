@@ -1,0 +1,133 @@
+/* High-Contrast Light Theme & Presentation-First Layout Resets for Slidev */
+:root,
+html,
+html.light,
+html.dark {
+  color-scheme: light !important;
+  --slidev-theme-primary: #1d4ed8 !important;
+  --slidev-slide-container-background: #e2e8f0 !important;
+}
+
+.slidev-layout {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  padding: 1.25rem 2rem !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Override @slidev/theme-default's oversized paragraph, list, and table spacing */
+.slidev-layout p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  line-height: 1.45 !important;
+}
+
+.slidev-layout ul,
+.slidev-layout ol {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.slidev-layout li {
+  line-height: 1.42 !important;
+  margin-top: 0.2rem !important;
+  margin-bottom: 0.2rem !important;
+}
+
+.slidev-layout table {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.slidev-layout tr th,
+.slidev-layout tr td {
+  padding-top: 0.38rem !important;
+  padding-bottom: 0.38rem !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  line-height: 1.35 !important;
+}
+
+/* Force all slide headings to fit cleanly on 1 line with high contrast (except cover) */
+.slidev-layout:not(.cover) h1 {
+  color: #0f172a !important;
+  font-size: 1.4rem !important;
+  line-height: 1.25 !important;
+  font-weight: 800 !important;
+  margin-bottom: 0.6rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  border-bottom: 2px solid #cbd5e1 !important;
+  padding-bottom: 0.35rem !important;
+}
+
+/* High contrast inline code that never breaks mid-tag */
+.slidev-layout :not(pre) > code {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  padding: 0.08rem 0.32rem !important;
+  border-radius: 0.25rem !important;
+  border: 1px solid #cbd5e1 !important;
+  font-size: 0.9em !important;
+  white-space: nowrap !important;
+}
+
+/* Prevent badges from ever wrapping onto multiple lines */
+.badge-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+/* High-contrast formula boxes */
+.formula-box {
+  background-color: #ffffff !important;
+  border: 1.5px solid #94a3b8 !important;
+  color: #0f172a !important;
+  border-radius: 0.5rem !important;
+  padding: 0.32rem 0.6rem !important;
+  text-align: center !important;
+  font-size: 0.8rem !important;
+  line-height: 1.35 !important;
+}
+
+/*
+ * CRITICAL FIX for Slidev v51 Goto.vue bug:
+ * When showGotoDialog is false, Slidev only applies `-top-20` (-80px), which hides the
+ * 40px input box but leaves the 350px `.autocomplete-list` hanging into the top-right corner!
+ */
+#slidev-goto-dialog,
+#slidev-goto-dialog.-top-20 {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#slidev-goto-dialog.top-5 {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Fix Slidev bottom NavControls sticking open due to focus-within or vertical screen */
+#page-root .focus-within\:opacity-100:not(:hover),
+#page-root .\!opacity-100:not(:hover) {
+  opacity: 0 !important;
+}
+
+#page-root .focus-within\:opacity-100:hover,
+#page-root .\!opacity-100:hover {
+  opacity: 1 !important;
+}
+
+/* Hide the /overview trap button inside QuickOverview so overview modal always closes cleanly */
+a[title="Slides Overview"] {
+  display: none !important;
+}

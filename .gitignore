@@ -1,0 +1,39 @@
+# ==========================================
+# Gitignore cho Slidev Presentation (Vite & Vue)
+# ==========================================
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Production build output
+dist/
+
+# Slidev local runtime & cache
+.slidev/
+
+# Slidev exported PDF / images
+slides-export.pdf
+*.pdf
+
+# Local environment variables & overrides
+*.local
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS & Editor artifacts
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*~
+*.bak
+*.swp
+*.swo
+.vscode/
+.idea/
