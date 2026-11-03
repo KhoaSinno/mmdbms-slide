@@ -56,24 +56,24 @@ transition: slide-left
   <div class="p-3.5 rounded-xl bg-red-50 border-2 border-red-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-sm text-red-900">1. Suy biến căn chỉnh mức từ</span>
+        <span class="font-extrabold text-xl text-red-900">1. Suy biến căn chỉnh mức từ</span>
       </div>
-      <p class="text-slate-800 text-[12.5px] font-medium">
+      <p class="text-slate-800 text-[16px] font-medium">
         WhisperX gốc bỏ sót <b>21 tầng đặc trưng tiếng Việt</b>, làm toàn bộ mốc thời gian từ bị dồn cục về 0,3 giây đầu câu.
       </p>
     </div>
     <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-red-300 flex items-center justify-between text-xs font-bold">
-      <span class="text-red-700">❌ Lệch biên từ nghiêm trọng</span>
+      <span class="text-red-700">❌ Lệch biên từ</span>
       <span class="text-emerald-800">➔ ✅ Khôi phục đủ 21 tầng CTC</span>
     </div>
   </div>
   <div class="p-3.5 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-sm text-amber-900">2. Đứt ngữ cảnh khi đọc ngắt nhịp</span>
+        <span class="font-extrabold text-xl text-amber-900">2. Đứt ngữ cảnh khi đọc ngắt nhịp</span>
       </div>
-      <p class="text-slate-800 text-[12.5px] font-medium">
-        Khoảng nghỉ dài giữa các chữ làm mô hình đứt mạch ngữ cảnh, nhận diện sai vần và dấu thanh (<i>“hôm nay chia sẻ” ➔ “hôn nay chia sẽ”</i>).
+      <p class="text-slate-800 text-[16px] font-medium">
+        Khoảng nghỉ dài giữa các chữ làm mô hình đứt mạch ngữ cảnh, nhận diện sai vần và dấu thanh <br>(<i>“hôm nay chia sẻ” ➔ “hôn nay chia sẽ”</i>).
       </p>
     </div>
     <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-amber-300 flex items-center justify-between text-xs font-bold">
@@ -84,10 +84,10 @@ transition: slide-left
   <div class="p-3.5 rounded-xl bg-purple-50 border-2 border-purple-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-sm text-purple-900">3. Phương ngữ Nam Bộ &amp; Từ mượn</span>
+        <span class="font-extrabold text-xl text-purple-900">3. Phương ngữ Nam Bộ &amp; Từ mượn</span>
       </div>
-      <p class="text-slate-800 text-[12.5px] font-medium">
-        Biến âm vùng miền (<i>thắp lên ➔ hấp lên</i>, <i>thư thả ➔ hư hả</i>) và từ vay mượn, thực thể dễ bị phiên âm sai (<i>ly phin ➔ ly phim, check ➔ chết</i>).
+      <p class="text-slate-800 text-[16px] font-medium">
+        Biến âm vùng miền (<i>thắp lên ➔ hấp lên</i>, <i>thư thả ➔ <br>hư hả</i>) và từ vay mượn, thực thể dễ bị phiên âm sai <br>(<i>ly phin ➔ ly phim, check ➔ chết</i>).
       </p>
     </div>
     <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-purple-300 flex items-center justify-between text-xs font-bold">
@@ -98,15 +98,15 @@ transition: slide-left
   <div class="p-3.5 rounded-xl bg-blue-50 border-2 border-blue-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-sm text-blue-900">4. Học bổ sung nhãn tức thì</span>
+        <span class="font-extrabold text-xl text-blue-900">4. Học bổ sung nhãn tức thì</span>
       </div>
-      <p class="text-slate-800 text-[12.5px] font-medium">
-        Cần cập nhật ngay từ người dùng vừa sửa vào CSDL <b>6.652 mẫu âm tiết</b> để nhận đúng tức thì ở lần chạy kế tiếp.
+      <p class="text-slate-800 text-[16px] font-medium">
+        Cần cập nhật ngay từ người dùng vừa sửa vào CSDL để nhận đúng tức thì ở lần chạy kế tiếp.
       </p>
     </div>
     <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-blue-300 flex items-center justify-between text-xs font-bold">
-      <span class="text-blue-800">❌ Tốn hàng giờ huấn luyện</span>
-      <span class="text-emerald-800">➔ ✅ Nạp nóng vector &lt; 50 ms</span>
+      <span class="text-blue-800">❌ Tốn thời gian huấn luyện</span>
+      <span class="text-emerald-800">➔ ✅ Nạp nóng vector </span>
     </div>
   </div>
 </div>
@@ -148,28 +148,28 @@ transition: slide-left
   <div class="p-3.5 rounded-xl bg-sky-50 border-2 border-sky-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between mb-3">
-        <span class="font-extrabold text-sm text-sky-950">1. Nén khoảng lặng thích nghi</span>
+        <span class="font-extrabold text-xl text-sky-950">1. Nén khoảng lặng thích nghi</span>
       </div>
       <div class="space-y-2">
-        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-center gap-3">
-          <span class="badge-pill px-2.5 py-1 rounded bg-sky-700 text-white text-xs">Bước 1</span>
+        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
+          <span class="font-black text-sky-700 text-sm shrink-0">B1:</span>
           <div>
-            <div class="font-extrabold text-sky-950">Phát hiện khoảng nghỉ dài &ge; 320 ms</div>
-            <div class="text-[11px] text-slate-600">Tự động nhận diện câu đọc rời rạc (tỷ lệ lặng &ge; 35%)</div>
+            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Phát hiện khoảng nghỉ dài &ge; 320 ms</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Tự động nhận diện câu đọc rời rạc (tỷ lệ lặng &ge; 35%)</div>
           </div>
         </div>
-        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-center gap-3">
-          <span class="badge-pill px-2.5 py-1 rounded bg-sky-700 text-white text-xs">Bước 2</span>
+        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
+          <span class="font-black text-sky-700 text-sm shrink-0">B2:</span>
           <div>
-            <div class="font-extrabold text-sky-950">Thu gọn mượt về 140 ms + Đệm biên 60 ms</div>
-            <div class="text-[11px] text-slate-600">Nối liền mạch ngữ cảnh câu, giữ trọn phụ âm cuối (<i>-p, -t, -c</i>)</div>
+            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Thu gọn mượt về 140 ms + Đệm biên 60 ms</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Nối liền mạch ngữ cảnh câu, giữ trọn phụ âm cuối (<i>-p, -t, -c</i>)</div>
           </div>
         </div>
-        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-center gap-3">
-          <span class="badge-pill px-2.5 py-1 rounded bg-sky-700 text-white text-xs">Bước 3</span>
+        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
+          <span class="font-black text-sky-700 text-sm shrink-0">B3:</span>
           <div>
-            <div class="font-extrabold text-sky-950">Nội suy trả lại tọa độ gốc chính xác</div>
-            <div class="text-[11px] text-slate-600">Ánh xạ ngược mốc thời gian từ đã nén về đúng vị trí ban đầu</div>
+            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Nội suy trả lại tọa độ gốc chính xác</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Ánh xạ ngược mốc thời gian từ đã nén về đúng vị trí ban đầu</div>
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@ transition: slide-left
   <div class="p-3.5 rounded-xl bg-indigo-50 border-2 border-indigo-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between mb-3">
-        <span class="font-extrabold text-sm text-indigo-950">2. Khôi phục Căn chỉnh CTC Tiếng Việt</span>
+        <span class="font-extrabold text-xl text-indigo-950">2. Khôi phục Căn chỉnh CTC Tiếng Việt</span>
       </div>
       <div class="p-3 rounded-lg bg-white border border-indigo-300 mb-3">
         <div class="text-[11px] font-bold text-indigo-900 mb-2">Luồng khôi phục đặc trưng âm học &amp; tái sử dụng bộ nhớ:</div>
@@ -253,46 +253,42 @@ transition: slide-left
   <div class="col-span-5 p-3.5 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-sm text-amber-950">Chuẩn hóa 6.652 Mẫu âm tiết</span>
-        <span class="badge-pill px-2 py-0.5 rounded bg-amber-200 text-amber-950 text-[11px]">Chính xác 100%</span>
+        <span class="font-extrabold text-xl text-amber-950">Chuẩn hóa 6.652 Mẫu âm tiết</span>
       </div>
       <div class="space-y-2">
         <div class="p-2.5 rounded-lg bg-white border border-amber-300">
-          <div class="text-[11px] font-bold text-amber-900 mb-1">1. Giải mã ký hiệu VNI từ tên mẫu thu âm</div>
+          <div class="text-[13px] font-bold text-amber-900 mb-1">1. Giải mã ký hiệu VNI từ tên mẫu thu âm</div>
           <div class="flex items-center justify-between bg-slate-100 px-2.5 py-1.5 rounded font-bold text-xs">
             <span class="font-mono text-slate-700">Mã VNI: d-uuoong2</span>
             <span class="text-amber-700">➔</span>
             <span class="text-blue-800">Nhãn chuẩn: “đường”</span>
           </div>
         </div>
-        <div class="text-center text-amber-700 font-black text-sm leading-none">⬇</div>
         <div class="p-2.5 rounded-lg bg-white border border-amber-300">
-          <div class="text-[11px] font-bold text-amber-900 mb-1">2. Bóc tách cấu trúc âm vị tiếng Việt</div>
+          <div class="text-[13px] font-bold text-amber-900 mb-1">2. Bóc tách cấu trúc âm vị tiếng Việt</div>
           <div class="grid grid-cols-4 gap-1 text-center text-[11px] font-bold">
-            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900">Âm đầu: đ</span>
-            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900">Vần: ươ</span>
-            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900">Cuối: ng</span>
-            <span class="p-1 rounded bg-amber-100 border border-amber-300 text-amber-950">Thanh: Huyền</span>
+            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900 flex flex-col leading-tight">Âm đầu:<span class="text-[15px] font-extrabold">đ</span></span>
+            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900 flex flex-col leading-tight">Vần:<span class="text-[15px] font-extrabold">ươ</span></span>
+            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900 flex flex-col leading-tight">Cuối:<span class="text-[15px] font-extrabold">ng</span></span>
+            <span class="p-1 rounded bg-amber-100 border border-amber-300 text-amber-950 flex flex-col leading-tight">Thanh:<span class="text-[15px] font-extrabold">Huyền</span></span>
           </div>
         </div>
-        <div class="text-center text-amber-700 font-black text-sm leading-none">⬇</div>
         <div class="p-2.5 rounded-lg bg-white border border-amber-300">
-          <div class="text-[11px] font-bold text-teal-900 mb-1">3. Trích xuất Vector đặc trưng 768 chiều chuẩn hóa L2</div>
-          <div class="text-[11px] text-slate-700">
+          <div class="text-[13px] font-bold text-teal-900 mb-1">3. Trích xuất Vector đặc trưng 768-D chuẩn hóa  L2</div>
+          <div class="text-[13px] text-slate-700">
             Lấy trung bình vùng lõi phát âm 0,45 giây và chuẩn hóa độ dài đơn vị để tích vô hướng bằng đúng <b>độ tương đồng Cosine</b>.
           </div>
         </div>
       </div>
     </div>
-    <div class="mt-2.5 p-2 rounded-lg bg-amber-900 text-white text-center font-bold text-[11px]">
+    <div class="mt-2.5 p-2 rounded-lg bg-amber-900 text-white text-center font-bold text-[15px]">
       Bao phủ đa dạng âm tiết, dấu thanh (0–5)<br>&amp; biến âm phương ngữ
     </div>
   </div>
   <div class="col-span-7 p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between mb-2">
-        <span class="font-extrabold text-sm text-blue-950">Lược đồ 5 Bảng CSDL Quan hệ SQLite</span>
-        <span class="badge-pill px-2.5 py-0.5 rounded bg-blue-100 border border-blue-300 text-blue-900 text-[11px]">Chỉ mục B-Tree tốc độ cao</span>
+        <span class="font-extrabold text-xl text-blue-950">Lược đồ 5 Bảng CSDL Quan hệ SQLite</span>
       </div>
       <div class="space-y-1.5">
         <div class="p-2 rounded-lg bg-white border-l-4 border-blue-600 border border-slate-300 flex items-center justify-between">
@@ -319,10 +315,9 @@ transition: slide-left
     </div>
     <div class="mt-2.5 p-2.5 rounded-xl bg-teal-900 text-white flex items-center justify-between">
       <div>
-        <div class="font-extrabold text-xs text-teal-200">Đồng bộ với Chỉ mục Vector Âm học FAISS (6.652 Vector 768-D)</div>
-        <div class="text-[11px]">Truy vấn lân cận ngữ âm kết hợp lọc siêu dữ liệu chỉ mất <b>0,2 ms / từ</b></div>
+        <div class="font-extrabold text-[15px] text-teal-200">Đồng bộ với Chỉ mục Vector Âm học FAISS (6.652 Vector 768-D)</div>
+        <div class="text-[14px]">Truy vấn lân cận ngữ âm kết hợp lọc siêu dữ liệu chỉ mất <b>0,2 ms / từ</b></div>
       </div>
-      <span class="badge-pill px-2.5 py-1 rounded bg-teal-400 text-slate-950 text-xs font-black">0,2 ms / từ</span>
     </div>
   </div>
 </div>
@@ -345,48 +340,48 @@ transition: slide-left
   <div class="p-3.5 rounded-xl bg-emerald-50 border-2 border-emerald-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-sm text-emerald-950">3. Đối sánh Ngữ âm &amp; Chuẩn hóa Thực thể</span>
+        <span class="font-extrabold text-xl text-emerald-950">3. Đối sánh Ngữ âm &amp; Chuẩn hóa Thực thể</span>
       </div>
       <div class="space-y-2 mb-3">
-        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-center gap-2.5">
-          <span class="badge-pill px-2 py-0.5 rounded bg-emerald-700 text-white text-[11px]">Bước 1</span>
+        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-start gap-2.5">
+          <span class="font-black text-emerald-700 text-sm shrink-0">B1:</span>
           <div>
-            <div class="font-bold text-emerald-950">Khoanh vùng ứng viên biến âm vùng miền</div>
-            <div class="text-[11px] text-slate-600">Lọc nhóm từ có hoán âm đầu (<i>r↔g, th↔h, tr↔ch</i>) &amp; âm cuối (<i>-t↔-c</i>)</div>
+            <div class="font-extrabold text-[13px] leading-snug text-emerald-950">Khoanh vùng ứng viên biến âm vùng miền</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Lọc nhóm từ có hoán âm đầu (<i>r↔g, th↔h, tr↔ch</i>) &amp; âm cuối (<i>-t↔-c</i>)</div>
           </div>
         </div>
-        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-center gap-2.5">
-          <span class="badge-pill px-2 py-0.5 rounded bg-emerald-700 text-white text-[11px]">Bước 2</span>
+        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-start gap-2.5">
+          <span class="font-black text-emerald-700 text-sm shrink-0">B2:</span>
           <div>
-            <div class="font-bold text-emerald-950">Kết hợp điểm tương đồng FAISS + Ngữ cảnh</div>
-            <div class="text-[11px] text-slate-600">Tổng hợp độ giống giọng đọc trên FAISS với quy tắc từ liền kề trong SQLite</div>
+            <div class="font-extrabold text-[13px] leading-snug text-emerald-950">Kết hợp điểm tương đồng FAISS + Ngữ cảnh</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Tổng hợp độ giống giọng đọc trên FAISS với quy tắc từ liền kề trong SQLite</div>
           </div>
         </div>
-        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-center gap-2.5">
-          <span class="badge-pill px-2 py-0.5 rounded bg-emerald-700 text-white text-[11px]">Bước 3</span>
+        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-start gap-2.5">
+          <span class="font-black text-emerald-700 text-sm shrink-0">B3:</span>
           <div>
-            <div class="font-bold text-emerald-950">Chuẩn hóa thực thể theo khung âm vị</div>
-            <div class="text-[11px] text-slate-600">Quy đồng các biến thể phát âm về tên địa danh và từ vay mượn chuẩn</div>
+            <div class="font-extrabold text-[13px] leading-snug text-emerald-950">Chuẩn hóa thực thể theo khung âm vị</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Quy đồng các biến thể phát âm về tên địa danh và từ vay mượn chuẩn</div>
           </div>
         </div>
       </div>
     </div>
     <div class="p-2.5 rounded-xl bg-white border-2 border-emerald-400">
-      <div class="text-[11px] font-extrabold text-emerald-900 mb-1.5">Minh họa sửa lỗi thực tế từ Nhật ký Thực nghiệm (Trước ➔ Sau):</div>
-      <div class="grid grid-cols-2 gap-1.5 text-[11.5px]">
-        <div class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 flex justify-between">
+      <div class="text-[14px] font-bold text-emerald-900 mb-1.5">Minh họa sửa lỗi thực tế từ Thực nghiệm (Trước ➔ Sau):</div>
+      <div class="grid grid-cols-2 gap-1.5 text-[13.5px]">
+        <div class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 flex flex-col justify-center">
           <span class="text-red-700 line-through">“hấp lên / hầm lặng”</span>
           <span class="font-extrabold text-emerald-800">➔ “thắp lên / thầm lặng”</span>
         </div>
-        <div class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 flex justify-between">
+        <div class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 flex flex-col justify-center">
           <span class="text-red-700 line-through">“nét hư hả”</span>
           <span class="font-extrabold text-emerald-800">➔ “nét thư thả”</span>
         </div>
-        <div class="px-2 py-1 rounded bg-purple-50 border border-purple-200 flex justify-between">
+        <div class="px-2 py-1 rounded bg-purple-50 border border-purple-200 flex flex-col justify-center">
           <span class="text-red-700 line-through">“một ly phim”</span>
           <span class="font-extrabold text-purple-800">➔ “một ly phin”</span>
         </div>
-        <div class="px-2 py-1 rounded bg-purple-50 border border-purple-200 flex justify-between">
+        <div class="px-2 py-1 rounded bg-purple-50 border border-purple-200 flex flex-col justify-center">
           <span class="text-red-700 line-through">“chết lại / cà phê”</span>
           <span class="font-extrabold text-purple-800">➔ “check lại / cafe”</span>
         </div>
@@ -396,24 +391,24 @@ transition: slide-left
   <div class="p-3.5 rounded-xl bg-rose-50 border-2 border-rose-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-sm text-rose-950">4. Vòng lặp Học nhãn Tức thì</span>
+        <span class="font-extrabold text-xl text-rose-950">4. Vòng lặp Học nhãn Tức thì</span>
       </div>
       <div class="space-y-1.5 mb-3">
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2.5">
-          <span class="badge-pill px-2 py-0.5 rounded bg-rose-700 text-white text-[11px]">Bước 1</span>
-          <span class="font-semibold text-slate-800"><b>Tách đoạn sóng âm của từ sai:</b> Cắt chính xác theo mốc thời gian từ</span>
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-sm shrink-0">B1:</span>
+          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Tách đoạn sóng âm của từ sai</p>Cắt chính xác theo mốc thời gian từ</span>
         </div>
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2.5">
-          <span class="badge-pill px-2 py-0.5 rounded bg-rose-700 text-white text-[11px]">Bước 2</span>
-          <span class="font-semibold text-slate-800"><b>Đánh dấu từ khóa ưu tiên:</b> Bật cờ ưu tiên cho nhãn đúng trong SQLite</span>
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-sm shrink-0">B2:</span>
+          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Đánh dấu từ khóa ưu tiên</p>Bật cờ ưu tiên cho nhãn đúng trong SQLite</span>
         </div>
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2.5">
-          <span class="badge-pill px-2 py-0.5 rounded bg-rose-700 text-white text-[11px]">Bước 3</span>
-          <span class="font-semibold text-slate-800"><b>Chèn nóng vector 768-D vào FAISS:</b> Bổ sung trực tiếp ngay trên RAM</span>
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-sm shrink-0">B3:</span>
+          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Chèn nóng vector 768-D vào FAISS</p>Bổ sung trực tiếp ngay trên RAM</span>
         </div>
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2.5">
-          <span class="badge-pill px-2 py-0.5 rounded bg-rose-700 text-white text-[11px]">Bước 4</span>
-          <span class="font-semibold text-slate-800"><b>Lưu quy tắc ngữ cảnh vào SQLite:</b> Ghi nhớ cặp từ đứng liền trước/sau</span>
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-sm shrink-0">B4:</span>
+          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Lưu quy tắc ngữ cảnh vào SQLite</p>Ghi nhớ cặp từ đứng liền trước/sau</span>
         </div>
       </div>
     </div>
