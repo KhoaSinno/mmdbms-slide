@@ -19,7 +19,7 @@ mdc: true
   <h1 class="!text-[26px] !leading-snug font-extrabold text-slate-900 mb-5 max-w-4xl">
     XÂY DỰNG HỆ THỐNG CHUYỂN ĐỔI ÂM THANH THÀNH VĂN BẢN<br/>
     TIẾNG VIỆT TRÊN NỀN TẢNG CƠ SỞ DỮ LIỆU ĐA PHƯƠNG TIỆN<br/>
-    <span class="text-blue-700">KẾT HỢP WHISPERX VÀ CHỈ MỤC VECTOR ÂM HỌC FAISS</span>
+    <span class="text-blue-700">KẾT HỢP WHISPERX, WAV2VEC2-VI VÀ CSDL SQLITE + FAISS 768-D</span>
   </h1>
   <div class="grid grid-cols-3 gap-3.5 w-full max-w-4xl text-left">
     <div class="p-3 rounded-xl bg-slate-50 border-2 border-slate-300 shadow-sm">
@@ -38,498 +38,519 @@ mdc: true
 </div>
 
 <!--
-[0:00 - 0:30 | 30 giây]
-Xin chào Thầy và các bạn. Nhóm chúng em gồm Nguyễn Trần Anh Khoa, Nguyễn Quốc Dửng và Nguyễn Thành Đạt xin trình bày Đề tài 2 môn Hệ cơ sở dữ liệu đa phương tiện: "Xây dựng hệ thống chuyển đổi âm thanh thành văn bản tiếng Việt trên nền tảng Cơ sở dữ liệu đa phương tiện kết hợp WhisperX và chỉ mục vector âm học FAISS".
-Hệ thống của nhóm khai thác 6.652 mẫu âm tiết thực tế trên kiến trúc hai tầng SQLite và FAISS 768 chiều, giúp giảm 74,7% tỷ lệ lỗi từ và hỗ trợ học nhãn bổ sung tức thì dưới 50 mili-giây.
+[0:00 - 0:25 | 25 giây]
+Em xin kính chào Thầy và các bạn. Hôm nay nhóm chúng em gồm Nguyễn Trần Anh Khoa, Nguyễn Quốc Dửng và Nguyễn Thành Đạt xin trình bày đề tài môn Hệ Quản trị Cơ sở dữ liệu Đa phương tiện: "Xây dựng Hệ thống Chuyển đổi Âm thanh thành Văn bản Tiếng Việt trên nền tảng Cơ sở dữ liệu Đa phương tiện kết hợp WhisperX, Wav2Vec2-VI và Chỉ mục Vector Âm học FAISS 768 chiều".
 -->
 
 ---
 transition: slide-left
 ---
 
-# 1. Bài toán & 4 Vấn đề thực tế
+# 1. Định hướng & 4 Trụ cột Giải pháp Thực hiện
 
-<div class="flex items-center justify-between px-3.5 py-2 mb-3 rounded-lg bg-blue-100 border-2 border-slate-300 text-slate-800">
-  <span><b>Mục tiêu đề tài:</b> Nhận dạng tiếng nói tiếng Việt liên tục, định vị từng từ và tra cứu trên CSDL Đa phương tiện.</span>
+<div class="flex items-center justify-between px-3.5 py-1.5 mb-2.5 rounded-lg bg-blue-100 border-2 border-blue-300 text-slate-900 text-xs">
+  <span><b>Định hướng cốt lõi:</b> Kết hợp sức mạnh ngữ cảnh của AI với Hệ CSDL Đa phương tiện (<b>SQLite + FAISS</b>) để kiểm định, sửa lỗi phương ngữ, chuẩn hóa địa danh và học nhãn bổ sung tức thì.</span>
 </div>
-<div class="grid grid-cols-2 gap-3.5 text-xs text-slate-900">
-  <div class="p-3.5 rounded-xl bg-red-50 border-2 border-red-300 flex flex-col justify-between">
+
+<div class="grid grid-cols-2 gap-3 text-xs text-slate-900">
+  <div class="p-3 rounded-xl bg-sky-50 border-2 border-sky-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-xl text-red-900">1. Suy biến căn chỉnh mức từ</span>
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <span class="font-extrabold text-[17px] text-sky-900">1. Áp dụng &amp; Tinh chỉnh Mô hình WhisperX</span>
+        <span class="badge-pill px-2 py-0.5 rounded bg-sky-200 text-sky-900 text-[10px]">Tầng Nhận dạng</span>
       </div>
-      <p class="text-slate-800 text-[16px] font-medium">
-        WhisperX gốc bỏ sót <b>21 tầng đặc trưng tiếng Việt</b>, làm toàn bộ mốc thời gian từ bị dồn cục về 0,3 giây đầu câu.
+      <p class="text-slate-800 text-[14.5px] font-medium leading-snug">
+        Tích hợp <b>Whisper Large-v3 (FP16)</b> kết hợp tinh chỉnh bộ giải mã bằng <b>Hotwords động</b> từ CSDL, <b>Prompt vùng miền</b> và tiền xử lý <b>nén khoảng lặng (0,14s)</b>.
       </p>
     </div>
-    <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-red-300 flex items-center justify-between text-xs font-bold">
-      <span class="text-red-700">❌ Lệch biên từ</span>
-      <span class="text-emerald-800">➔ ✅ Khôi phục đủ 21 tầng CTC</span>
+    <div class="mt-2.5 px-2.5 py-1.5 rounded-lg bg-white border border-sky-300 flex items-center justify-between text-[11.5px] font-bold">
+      <span class="text-sky-800">🎯 Khắc phục đứt mạch khi đọc ngắt chữ</span>
+      <span class="text-emerald-800">➔ Định hướng chuẩn từ vựng Việt</span>
     </div>
   </div>
-  <div class="p-3.5 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
+  <div class="p-3 rounded-xl bg-indigo-50 border-2 border-indigo-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-xl text-amber-900">2. Đứt ngữ cảnh khi đọc ngắt nhịp</span>
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <span class="font-extrabold text-[17px] text-indigo-900">2. Mô hình Wav2Vec2-VI Validate Từ đặc thù</span>
+        <span class="badge-pill px-2 py-0.5 rounded bg-indigo-200 text-indigo-900 text-[10px]">Tầng Kiểm định</span>
       </div>
-      <p class="text-slate-800 text-[16px] font-medium">
-        Khoảng nghỉ dài giữa các chữ làm mô hình đứt mạch ngữ cảnh, nhận diện sai vần và dấu thanh <br>(<i>“hôm nay chia sẻ” ➔ “hôn nay chia sẽ”</i>).
+      <p class="text-slate-800 text-[14.5px] font-medium leading-snug">
+        Khôi phục <b>21 tầng đặc trưng tiếng Việt</b> để căn chỉnh mốc <b>[Start, End]</b> và đo <b>điểm vật lý CTC mỗi 20ms</b> nhằm phát hiện các từ đặc thù bị mô hình nhận diện sai.
       </p>
     </div>
-    <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-amber-300 flex items-center justify-between text-xs font-bold">
-      <span class="text-amber-800">❌ Đứt mạch &amp; sai từ đơn lẻ</span>
-      <span class="text-emerald-800">➔ ✅ Nén khoảng lặng thích nghi</span>
+    <div class="mt-2.5 px-2.5 py-1.5 rounded-lg bg-white border border-indigo-300 flex items-center justify-between text-[11.5px] font-bold">
+      <span class="text-indigo-800">🔍 Bắt chính xác từ có CTC &lt; 0,85</span>
+      <span class="text-emerald-800">➔ Phát hiện biến âm &amp; từ cổ/hiếm</span>
     </div>
   </div>
-  <div class="p-3.5 rounded-xl bg-purple-50 border-2 border-purple-300 flex flex-col justify-between">
+  <div class="p-3 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-xl text-purple-900">3. Phương ngữ Nam Bộ &amp; Từ mượn</span>
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <span class="font-extrabold text-[17px] text-amber-900">3. Lưu trữ Đa phương tiện SQLite + FAISS</span>
+        <span class="badge-pill px-2 py-0.5 rounded bg-amber-200 text-amber-900 text-[10px]">Trái tim MMDBMS</span>
       </div>
-      <p class="text-slate-800 text-[16px] font-medium">
-        Biến âm vùng miền (<i>thắp lên ➔ hấp lên</i>, <i>thư thả ➔ <br>hư hả</i>) và từ vay mượn, thực thể dễ bị phiên âm sai <br>(<i>ly phin ➔ ly phim, check ➔ chết</i>).
+      <p class="text-slate-800 text-[14.5px] font-medium leading-snug">
+        Đồng bộ 1–1 giữa <b>FAISS 768-D</b> (<b>6.652</b> mẫu âm tiết chuẩn <code>quoc_dung</code>) và <b>SQLite 5 bảng</b> (<b>102</b> luật ngữ cảnh phương ngữ &amp; <b>1.564</b> biến thể địa danh, từ mượn).
       </p>
     </div>
-    <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-purple-300 flex items-center justify-between text-xs font-bold">
-      <span class="text-purple-800">❌ Sai biến âm &amp; từ vay mượn</span>
-      <span class="text-emerald-800">➔ ✅ Đối sánh ngữ âm &amp; Chuẩn hóa</span>
+    <div class="mt-2.5 px-2.5 py-1.5 rounded-lg bg-white border border-amber-300 flex items-center justify-between text-[11.5px] font-bold">
+      <span class="text-amber-900">🏛️ Đối soát Vector + Trọng tài SQL</span>
+      <span class="text-emerald-800">➔ Chuẩn hóa: Đắk Lắk, Kon Tum, cafe</span>
     </div>
   </div>
-  <div class="p-3.5 rounded-xl bg-blue-50 border-2 border-blue-300 flex flex-col justify-between">
+  <div class="p-3 rounded-xl bg-emerald-50 border-2 border-emerald-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between gap-2 mb-2">
-        <span class="font-extrabold text-xl text-blue-900">4. Học bổ sung nhãn tức thì</span>
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <span class="font-extrabold text-[17px] text-emerald-900">4. Bổ sung Nhãn Tức thì khi Thiếu nhãn</span>
+        <span class="badge-pill px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 text-[10px]">Active Learning</span>
       </div>
-      <p class="text-slate-800 text-[16px] font-medium">
-        Cần cập nhật ngay từ người dùng vừa sửa vào CSDL để nhận đúng tức thì ở lần chạy kế tiếp.
+      <p class="text-slate-800 text-[14.5px] font-medium leading-snug">
+        Khi từ bị thiếu nhãn hoặc sai, hệ thống <b>tự cắt sóng âm [Start, End]</b> lưu <code>.wav</code>, trích xuất vector 768-D <b>nạp nóng vào FAISS</b> &amp; tạo luật ngữ cảnh trong <b>SQLite</b>.
       </p>
     </div>
-    <div class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-blue-300 flex items-center justify-between text-xs font-bold">
-      <span class="text-blue-800">❌ Tốn thời gian huấn luyện</span>
-      <span class="text-emerald-800">➔ ✅ Nạp nóng vector </span>
+    <div class="mt-2.5 px-2.5 py-1.5 rounded-lg bg-white border border-emerald-300 flex items-center justify-between text-[11.5px] font-bold">
+      <span class="text-emerald-800">⚡ Cập nhật nóng dưới 0,2 giây</span>
+      <span class="text-blue-800">➔ Nhận đúng 100% không cần Train lại</span>
     </div>
+  </div>
+</div>
+
+<!--
+[0:25 - 1:05 | 40 giây]
+Thưa Thầy, để giải quyết bài toán nhận dạng giọng nói tiếng Việt có phương ngữ Nam Bộ, địa danh đặc thù và từ thiếu nhãn, nhóm em triển khai 4 trụ cột giải pháp thực hiện:
+- Thứ nhất, áp dụng mô hình WhisperX (Large-v3) và tinh chỉnh bộ giải mã bằng Hotwords động từ CSDL cùng thuật toán nén khoảng lặng để phù hợp đặc thù tiếng Việt.
+- Thứ hai, tích hợp thêm mô hình Wav2Vec2 tiếng Việt (khôi phục đủ 21 tầng đặc trưng) để đo điểm tin cậy vật lý CTC trên từng khung 20ms, giúp validate và phát hiện ngay các từ đặc thù mà mô hình đầu tiên nhận diện sai.
+- Thứ ba, xây dựng kiến trúc lưu trữ đa phương tiện kết hợp SQLite (5 bảng) và FAISS Vector 768 chiều, khai thác 6.652 mẫu âm thanh quoc_dung và bộ từ điển 1.564 biến thể để sửa lỗi biến âm cũng như chuẩn hóa địa danh Đắk Lắk, Kon Tum, cafe.
+- Thứ tư, thiết kế cơ chế bổ sung nhãn tức thì khi từ bị thiếu nhãn: tự động cắt sóng âm nạp nóng vào FAISS và SQLite để cải thiện ngay lập tức dưới 0,2 giây mà không cần huấn luyện lại.
+-->
+
+---
+transition: slide-left
+---
+
+# 2. Kiến trúc Hệ thống Lai ghép 4 Tầng (Acoustic RAG Pipeline)
+
+```mermaid
+flowchart LR
+    classDef dsp fill:#E0F2FE,stroke:#0284C7,stroke-width:2px,color:#0C4A6E
+    classDef ai fill:#EEF2FF,stroke:#4F46E5,stroke-width:2px,color:#1E1B4B
+    classDef dec fill:#FCE7F3,stroke:#DB2777,stroke-width:2px,color:#831843
+    classDef faiss fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    classDef sqlite fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#064E3B
+    classDef out fill:#DCFCE7,stroke:#16A34A,stroke-width:2.5px,color:#14532D
+
+    subgraph T1["TẦNG 1: TIỀN XỬ LÝ DSP"]
+        A1["Chuẩn hóa 16kHz Mono"]:::dsp --> A2["Lọc Bandpass 75-7600Hz"]:::dsp
+        A2 --> A3["Nén khoảng lặng 0.14s + TimeMap"]:::dsp
+    end
+
+    subgraph T2["TẦNG 2: NHẬN DẠNG NGỮ CẢNH"]
+        B1["Whisper Large-v3 (FP16)"]:::ai --> B2["Văn bản thô + Hotwords"]:::ai
+    end
+
+    subgraph T3["TẦNG 3: KIỂM ĐỊNH WAV2VEC2-VI"]
+        C1["Forced Alignment 21 tầng"]:::ai --> C2["Gán [Start, End] & Điểm CTC 20ms"]:::ai
+        C2 --> C3{"CTC < 0.85 hoặc Nghi vấn?"}:::dec
+    end
+
+    subgraph T4["TẦNG 4: TRỌNG TÀI ĐA PHƯƠNG TIỆN MMDBMS"]
+        D1["FAISS 768-D: Tìm mẫu âm tiết chuẩn"]:::faiss
+        D2["SQLite confusion_rules: Trọng tài ngữ cảnh"]:::sqlite
+        D3["SQLite canonical_lexicon: Chuẩn hóa 7-gram ITN"]:::sqlite
+        D1 --> D2 --> D3
+    end
+
+    A3 --> B1
+    B2 --> C1
+    C3 -- "Có (Nắn chỉnh lỗi)" --> D1
+    C3 -- "Không (Giữ từ đúng)" --> D3
+    D3 --> E["VĂN BẢN CHUẨN XÁC + Tọa độ từng từ"]:::out
+```
+
+<div class="grid grid-cols-3 gap-3 mt-2.5 text-xs text-slate-900">
+  <div class="p-2.5 rounded-xl bg-indigo-50 border-2 border-indigo-300">
+    <div class="font-extrabold text-indigo-950 text-[13px] mb-0.5">1. Đồng thuận Hai luồng (Dual-Stream)</div>
+    <div class="text-[11.5px] text-slate-700 leading-snug">Kết hợp ngữ cảnh toàn câu của <b>Whisper Large-v3</b> với kiểm định dao động vật lý mỗi <b>20ms</b> của <b>Wav2Vec2-VI</b>.</div>
+  </div>
+  <div class="p-2.5 rounded-xl bg-amber-50 border-2 border-amber-300">
+    <div class="font-extrabold text-amber-950 text-[13px] mb-0.5">2. Phân luồng Kiểm định Thông minh</div>
+    <div class="text-[11.5px] text-slate-700 leading-snug">Giữ nguyên các từ phát âm chuẩn (<b>CTC &ge; 0,85</b>); chỉ kích hoạt CSDL cứu viện khi điểm CTC thấp hoặc gặp biến âm.</div>
+  </div>
+  <div class="p-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-300">
+    <div class="font-extrabold text-emerald-950 text-[13px] mb-0.5">3. Vòng lặp Học Nhãn Khép Kín</div>
+    <div class="text-[11.5px] text-slate-700 leading-snug">Từ đầu ra trên Web UI, người dùng sửa từ sai sẽ tự động cắt sóng âm nạp ngược vào <b>FAISS</b> &amp; <b>SQLite</b> (&lt; 0,2s).</div>
   </div>
 </div>
 
 <!--
-[0:30 - 1:15 | 45 giây]
-Khi giải quyết bài toán nhận dạng câu nói tiếng Việt liên tục, nhóm đối mặt với 4 vấn đề thực tế:
-Thứ nhất, WhisperX gốc bỏ sót 21 tầng biến đổi đặc trưng tiếng Việt, làm điểm tự tin CTC tụt xuống 0,009 và toàn bộ biên thời gian từ bị dồn lệch về đầu câu.
-Thứ hai, khi người nói đọc ngắt nhịp chậm rãi, các khoảng nghỉ dài làm mô hình bị đứt ngữ cảnh, tự chấm câu vụn vặt khiến tỷ lệ lỗi từ vọt lên 38 đến 40%.
-Thứ ba là hiện tượng biến âm phương ngữ Nam Bộ như "mưa rào" đọc thành "mưa gào", "thành công" thành "hành công", cùng các địa danh như "Đắk Lắk".
-Thứ tư là yêu cầu học bổ sung nhãn tức thì dưới 50 mili-giây ngay khi người dùng sửa lỗi mà không phải huấn luyện lại mô hình.
+[1:05 - 1:50 | 45 giây]
+Slide 3 trình bày sơ đồ kiến trúc hệ thống lai ghép 4 tầng theo mô hình Acoustic RAG:
+- Tầng 1 (Tiền xử lý DSP): Chuẩn hóa âm thanh 16kHz Mono, lọc thông dải Butterworth 75 đến 7600Hz và tự động nén các khoảng lặng dài về 0,14 giây kèm bảng TimeMap để bảo toàn tọa độ gốc.
+- Tầng 2 (Nhận dạng ngữ cảnh): Sử dụng Whisper Large-v3 kết hợp danh sách Hotwords ưu tiên từ SQLite để sinh văn bản thô.
+- Tầng 3 (Kiểm định Wav2Vec2-VI): Căn chỉnh mốc thời gian [Start, End] của từng từ và đo điểm tin cậy vật lý CTC trên từng lát cắt 20ms.
+- Tầng 4 (Trọng tài Đa phương tiện MMDBMS): Những từ phát âm rõ, điểm CTC từ 0,85 trở lên sẽ đi thẳng tới bước chuẩn hóa thực thể. Những từ có điểm CTC thấp hoặc thuộc diện nghi vấn phương ngữ sẽ được trích xuất vector 768 chiều để đối soát qua FAISS và SQLite trước khi xuất ra văn bản chuẩn xác.
 -->
 
 ---
 transition: slide-left
 ---
 
-# 2. Kiến trúc Tổng thể Hệ thống & Luồng Dữ liệu
-
-<div class="flex flex-col items-center justify-center mt-1">
-    <img src="/kien_truc_he_thong.png" alt="Kiến trúc Tổng thể Hệ thống" />
-</div>
-
-<!--
-[1:15 - 2:00 | 45 giây]
-Slide 3 trực quan hóa kiến trúc tổng thể của hệ thống nhận dạng tiếng nói lai ghép:
-- Phân vùng 1 (trên cùng): Luồng xử lý trực tuyến từ sóng âm đầu vào ➔ Tiền xử lý nén khoảng lặng ➔ Giải mã Whisper và căn chỉnh CTC tiếng Việt 21 tầng ➔ Đối sánh ngữ âm CSDL để xuất văn bản kèm tọa độ thời gian chuẩn xác.
-- Phân vùng 2 (trái tim hệ thống): CSDL Đa phương tiện hai tầng gồm SQLite (5 bảng quan hệ B-Tree) đồng bộ khóa 1-1 với Chỉ mục Vector FAISS (6.652 vector âm học 768 chiều).
-- Phân vùng 3 (vòng lặp học nhãn chủ động): Khi người dùng sửa từ sai, hệ thống tự cắt mẫu âm thanh, trích xuất vector 768-D và nạp nóng vào CSDL trong chưa đầy 50 mili-giây mà không cần huấn luyện lại.
--->
-
----
-transition: slide-left
----
-
-# 3. Cải tiến Tín hiệu & Căn chỉnh Mức từ (Giải quyết Vấn đề 1 & 2)
+# 3. Tiền xử lý Tín hiệu DSP & Kiểm định Wav2Vec2-VI (Tầng 1 – 3)
 
 <div class="grid grid-cols-2 gap-4 text-xs mt-1 text-slate-900">
   <div class="p-3.5 rounded-xl bg-sky-50 border-2 border-sky-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between mb-3">
-        <span class="font-extrabold text-xl text-sky-950">1. Nén khoảng lặng thích nghi</span>
+      <div class="flex items-center justify-between mb-2.5">
+        <span class="font-extrabold text-xl text-sky-950">1. Nén khoảng lặng thích nghi + TimeMap</span>
       </div>
       <div class="space-y-2">
         <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
           <span class="font-black text-sky-700 text-sm shrink-0">B1:</span>
           <div>
             <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Phát hiện khoảng nghỉ dài &ge; 320 ms</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Tự động nhận diện câu đọc rời rạc (tỷ lệ lặng &ge; 35%)</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Tự động nhận diện câu đọc rời rạc từng chữ (tỷ lệ lặng &ge; 35%)</div>
           </div>
         </div>
         <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
           <span class="font-black text-sky-700 text-sm shrink-0">B2:</span>
           <div>
             <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Thu gọn mượt về 140 ms + Đệm biên 60 ms</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Nối liền mạch ngữ cảnh câu, giữ trọn phụ âm cuối (<i>-p, -t, -c</i>)</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Nối liền mạch ngữ cảnh cho Whisper, giữ trọn phụ âm cuối (<i>-p, -t, -c</i>)</div>
           </div>
         </div>
         <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
           <span class="font-black text-sky-700 text-sm shrink-0">B3:</span>
           <div>
-            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Nội suy trả lại tọa độ gốc chính xác</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Ánh xạ ngược mốc thời gian từ đã nén về đúng vị trí ban đầu</div>
+            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Nội suy tuyến tính từng khúc (Piecewise TimeMap)</div>
+            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Ánh xạ ngược mốc <code>[Start, End]</code> từ audio nén về đúng thời gian gốc</div>
           </div>
         </div>
       </div>
     </div>
     <div class="mt-3 p-3 rounded-xl bg-sky-900 text-white">
-      <div class="text-[11px] text-sky-200 font-semibold mb-1">Hiệu quả thực tế trên Câu đọc ngắt chữ rời rạc (23 từ):</div>
+      <div class="text-[11px] text-sky-200 font-semibold mb-1">Thực nghiệm trên file đọc ngắt từng chữ (<code>ai_sentence_paced.wav</code>):</div>
       <div class="flex items-center justify-between text-xs font-extrabold">
         <span>Thời lượng: 44,9s ➔ 12,8s (RTF 0,084)</span>
-        <span class="px-2.5 py-0.5 rounded bg-emerald-400 text-slate-950">Lỗi WER: 8,7% ➔ 0,0%</span>
+        <span class="px-2.5 py-0.5 rounded bg-emerald-400 text-slate-950">Lỗi WER: 8,70% ➔ 0,00%</span>
       </div>
     </div>
   </div>
   <div class="p-3.5 rounded-xl bg-indigo-50 border-2 border-indigo-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between mb-3">
-        <span class="font-extrabold text-xl text-indigo-950">2. Khôi phục Căn chỉnh CTC Tiếng Việt</span>
+      <div class="flex items-center justify-between mb-2.5">
+        <span class="font-extrabold text-xl text-indigo-950">2. Validate bằng Điểm Vật lý CTC 20ms</span>
       </div>
-      <div class="p-3 rounded-lg bg-white border border-indigo-300 mb-3">
-        <div class="text-[11px] font-bold text-indigo-900 mb-2">Luồng khôi phục đặc trưng âm học &amp; tái sử dụng bộ nhớ:</div>
+      <div class="p-2.5 rounded-lg bg-white border border-indigo-300 mb-2.5">
+        <div class="text-[11.5px] font-bold text-indigo-900 mb-1.5">Cơ chế đo xác suất âm vị mỗi 20ms sóng âm (50 khung/giây):</div>
         <div class="flex items-center justify-between gap-1.5 text-center font-extrabold text-[11px]">
           <div class="p-2 rounded-lg bg-slate-100 border border-slate-300 flex-1">
-            Tầng ẩn<br/><span class="text-indigo-700">768 chiều</span>
+            Tầng ẩn Wav2Vec2<br/><span class="text-indigo-700">Vector 768-D</span>
           </div>
           <span class="text-indigo-700 text-sm">➔</span>
-          <div class="p-2 rounded-lg bg-indigo-100 border-2 border-indigo-400 text-indigo-950 flex-[1.4]">
-            Khôi phục 3 khối<br/>Biến đổi Đặc trưng (21 tầng)
+          <div class="p-2 rounded-lg bg-indigo-100 border-2 border-indigo-400 text-indigo-950 flex-[1.35]">
+            Khôi phục 21 tầng<br/><code>feature_transform</code>
           </div>
           <span class="text-indigo-700 text-sm">➔</span>
           <div class="p-2 rounded-lg bg-emerald-100 border-2 border-emerald-400 text-emerald-950 flex-1">
-            Căn chỉnh<br/>biên từ chuẩn
+            Chấm điểm CTC<br/>&amp; Biên <code>[Start, End]</code>
           </div>
         </div>
       </div>
       <table class="w-full text-xs border-collapse bg-white rounded-lg overflow-hidden border-2 border-indigo-300">
         <thead>
           <tr class="border-b-2 border-indigo-200 text-left bg-indigo-100">
-            <th class="text-indigo-950">Tiêu chí đối sánh</th>
+            <th class="text-indigo-950">Tiêu chí kỹ thuật</th>
             <th class="text-red-800">WhisperX gốc</th>
             <th class="text-emerald-800">Hệ thống đề xuất</th>
           </tr>
         </thead>
         <tbody>
           <tr class="border-b border-slate-200">
-            <td class="font-bold">Điểm tự tin CTC</td>
+            <td class="font-bold">Điểm kiểm định CTC</td>
             <td class="text-red-700 font-bold">0,009 (Suy biến)</td>
-            <td class="font-extrabold text-emerald-800">0,50 – 0,98</td>
+            <td class="font-extrabold text-emerald-800">0,50 – 0,98 (Phân loại chuẩn)</td>
           </tr>
           <tr class="border-b border-slate-200 bg-emerald-50/40">
-            <td class="font-bold">Độ chuẩn biên từ</td>
+            <td class="font-bold">Độ chính xác biên từ</td>
             <td class="text-red-700 font-bold">Lệch dồn về 0,3s</td>
             <td class="font-extrabold text-emerald-800">Khớp chuẩn ±15 ms</td>
           </tr>
           <tr>
-            <td class="font-bold">Bộ nhớ trích xuất vector</td>
-            <td class="text-red-700 font-bold">+1,2 GB (Mô hình rời)</td>
-            <td class="font-extrabold text-emerald-800">0 MB (Dùng chung)</td>
+            <td class="font-bold">VRAM trích xuất 768-D</td>
+            <td class="text-red-700 font-bold">+1,2 GB (Tải 2 lần)</td>
+            <td class="font-extrabold text-emerald-800">0 MB (Dùng chung Encoder)</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="mt-3 p-2.5 rounded-xl bg-indigo-900 text-white text-center text-xs font-bold">
-      Đồng thuận âm học kép: Tự động khôi phục từ bị nuốt âm giữa câu
+      Từ bị Whisper đoán mò lệch sóng âm ➔ Điểm CTC tụt (&lt; 0,85) ➔ Chuyển sang CSDL sửa!
     </div>
   </div>
 </div>
 
 <!--
-[2:00 - 2:45 | 45 giây]
-Slide 4 trình bày hai cải tiến cốt lõi ở tầng tín hiệu và tầng căn chỉnh mức từ:
-- Bên trái là thuật toán Nén khoảng lặng thích nghi qua 3 bước: phát hiện các khoảng nghỉ dài từ 320 mili-giây trở lên, thu gọn mượt về 140 mili-giây kèm đệm biên 60 mili-giây để bảo vệ phụ âm cuối, sau đó nội suy trả lại đúng tọa độ thời gian gốc. Nhờ đó câu đọc ngắt nhịp dài 18,5 giây được thu gọn về 5,8 giây và giảm lỗi WER từ 38,1% xuống 0%.
-- Bên phải là cải tiến Khôi phục 3 khối biến đổi đặc trưng gồm 21 tầng trọng số tiếng Việt bị WhisperX gốc bỏ sót. Điểm tự tin CTC tăng vọt từ 0,009 lên 0,50–0,98, biên thời gian từ khớp chính xác trong khoảng cộng trừ 15 mili-giây, đồng thời tiết kiệm 1,2 GB bộ nhớ GPU nhờ dùng chung tầng ẩn 768 chiều cho chỉ mục FAISS.
+[1:50 - 2:35 | 45 giây]
+Slide 4 đi sâu vào cơ chế xử lý tín hiệu và dùng Wav2Vec2-VI để validate kết quả của Whisper:
+- Ở cột bên trái, khi người dùng đọc ngắt từng chữ rời rạc, các khoảng lặng dài trên 320ms được thu gọn mượt về 140ms kèm đệm biên 60ms để không mất phụ âm cuối, sau đó nội suy trả lại đúng tọa độ gốc qua bảng TimeMap. Thực nghiệm trên file đọc ngắt chữ dài 44,9 giây đã rút ngắn thời gian xử lý xuống 12,8 giây và kéo tỷ lệ lỗi WER từ 8,7% về 0%.
+- Ở cột bên phải, nhóm khôi phục đủ 21 tầng biến đổi đặc trưng tiếng Việt cho mô hình Wav2Vec2-VI. Cứ mỗi 20ms sóng âm (tức 50 lần mỗi giây), mô hình đo trực tiếp xác suất âm vị trên phổ tần số. Nếu Whisper đoán mò một từ không khớp với dao động vật lý thực tế, điểm CTC của từ đó sẽ tụt xuống dưới 0,85, lập tức kích hoạt tầng CSDL Đa phương tiện vào cuộc.
 -->
 
 ---
 transition: slide-left
 ---
 
-# 4. Quản trị CSDL Đa phương tiện Hai tầng (SQLite + FAISS)
+# 4. Thiết kế CSDL Đa phương tiện Hai tầng (SQLite + FAISS 768-D)
 
-<div class="grid grid-cols-12 gap-4 text-xs mt-1 text-slate-900">
-  <div class="col-span-5 p-3.5 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
-    <div>
-      <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-xl text-amber-950">Chuẩn hóa 6.652 Mẫu âm tiết</span>
-      </div>
-      <div class="space-y-2">
-        <div class="p-2.5 rounded-lg bg-white border border-amber-300">
-          <div class="text-[13px] font-bold text-amber-900 mb-1">1. Giải mã ký hiệu VNI từ tên mẫu thu âm</div>
-          <div class="flex items-center justify-between bg-slate-100 px-2.5 py-1.5 rounded font-bold text-xs">
-            <span class="font-mono text-slate-700">Mã VNI: d-uuoong2</span>
-            <span class="text-amber-700">➔</span>
-            <span class="text-blue-800">Nhãn chuẩn: “đường”</span>
-          </div>
-        </div>
-        <div class="p-2.5 rounded-lg bg-white border border-amber-300">
-          <div class="text-[13px] font-bold text-amber-900 mb-1">2. Bóc tách cấu trúc âm vị tiếng Việt</div>
-          <div class="grid grid-cols-4 gap-1 text-center text-[11px] font-bold">
-            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900 flex flex-col leading-tight">Âm đầu:<span class="text-[15px] font-extrabold">đ</span></span>
-            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900 flex flex-col leading-tight">Vần:<span class="text-[15px] font-extrabold">ươ</span></span>
-            <span class="p-1 rounded bg-blue-50 border border-blue-200 text-blue-900 flex flex-col leading-tight">Cuối:<span class="text-[15px] font-extrabold">ng</span></span>
-            <span class="p-1 rounded bg-amber-100 border border-amber-300 text-amber-950 flex flex-col leading-tight">Thanh:<span class="text-[15px] font-extrabold">Huyền</span></span>
-          </div>
-        </div>
-        <div class="p-2.5 rounded-lg bg-white border border-amber-300">
-          <div class="text-[13px] font-bold text-teal-900 mb-1">3. Trích xuất Vector đặc trưng 768-D chuẩn hóa  L2</div>
-          <div class="text-[13px] text-slate-700">
-            Lấy trung bình vùng lõi phát âm 0,45 giây và chuẩn hóa độ dài đơn vị để tích vô hướng bằng đúng <b>độ tương đồng Cosine</b>.
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-2.5 p-2 rounded-lg bg-amber-900 text-white text-center font-bold text-[15px]">
-      Bao phủ đa dạng âm tiết, dấu thanh (0–5)<br>&amp; biến âm phương ngữ
-    </div>
+```mermaid
+flowchart TB
+    classDef src fill:#F1F5F9,stroke:#475569,stroke-width:2px,color:#0F172A
+    classDef proc fill:#EEF2FF,stroke:#4F46E5,stroke-width:2px,color:#1E1B4B
+    classDef faiss fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    classDef sqlite fill:#D1FAE5,stroke:#059669,stroke-width:2px,color:#064E3B
+
+    subgraph NGUON["1. NGUỒN DỮ LIỆU ĐA PHƯƠNG TIỆN ĐẦU VÀO"]
+        Q1["Kho âm thanh chuẩn: dataset/quoc_dung (6.652 file .wav đơn âm tiết)"]:::src
+        Q2["Bộ Đại từ điển: danh_sach_tu_vay_muon.csv (963 thực thể gốc ➔ 1.564 biến thể)"]:::src
+    end
+
+    subgraph XULY["2. BỘ TRÍCH XUẤT & GIẢI MÃ TỰ ĐỘNG"]
+        P1["Wav2Vec2-VI Encoder (Lõi 0.45s ➔ Vector 768-D L2)"]:::proc
+        P2["syllable_decoder.py (Giải mã VNI: âm đầu, vần, dấu 0-5)"]:::proc
+        P3["lexicon_expander.py (Sinh biến thể & Khóa âm vị)"]:::proc
+    end
+
+    subgraph MMDBMS["3. HỆ QUẢN TRỊ CSDL ĐA PHƯƠNG TIỆN HAI TẦNG (storage/)"]
+        subgraph T_FAISS["TẦNG VECTOR: acoustic_labels.index"]
+            F1["FAISS IndexIDMap2(IndexFlatIP) | 6.652 Vector x 768-D | Cosine < 0.2ms"]:::faiss
+        end
+
+        subgraph T_SQL["TẦNG QUAN HỆ: SQLite (mmdbms_stt.db - 5 Bảng)"]
+            S1["1. syllable_labels (Từ điển âm tiết, gốc không dấu, dấu 0-5, is_hotword)"]:::sqlite
+            S2["2. audio_samples (6.652 mẫu .wav vật lý, speaker, duration)"]:::sqlite
+            S3["3. confusion_rules (102 quy tắc sửa lỗi phương ngữ kèm ngữ cảnh trái/phải)"]:::sqlite
+            S4["4. canonical_lexicon (1.564 biến thể Địa danh, Từ mượn, Tech, Brand)"]:::sqlite
+            S5["5. transcription_logs (Lưu lịch sử nhận dạng, WER trước/sau, RTF)"]:::sqlite
+        end
+    end
+
+    Q1 --> P1 --> F1
+    Q1 --> P2 --> S1 --> S2
+    Q2 --> P3 --> S4
+    F1 <-->|"Đồng bộ khóa 1-1 qua sample_id"| S2
+```
+
+<div class="grid grid-cols-2 gap-3 mt-1.5 text-xs text-slate-900">
+  <div class="px-3 py-1.5 rounded-lg bg-amber-50 border-2 border-amber-300 flex items-center justify-between">
+    <span><b>Vai trò kho <code>quoc_dung</code> (6.652 file .wav):</b> Ngân hàng Âm học Chuẩn tham chiếu (Ground-Truth Acoustic Reference Bank) để nắn chỉnh phát âm lệch.</span>
   </div>
-  <div class="col-span-7 p-3.5 rounded-xl bg-slate-50 border-2 border-slate-300 flex flex-col justify-between">
+  <div class="px-3 py-1.5 rounded-lg bg-emerald-50 border-2 border-emerald-300 flex items-center justify-between">
+    <span><b>Liên kết Chéo 1–1 (Cross-Modal Link):</b> Mỗi vector 768 chiều trong <code>FAISS</code> ánh xạ chính xác 1–1 với <code>audio_samples</code> trong <code>SQLite</code> qua <code>sample_id</code>.</span>
+  </div>
+</div>
+
+<!--
+[2:35 - 3:25 | 50 giây]
+Thưa Thầy, Slide 5 thể hiện kiến trúc CSDL Đa phương tiện 2 tầng và cách nhóm khai thác kho dữ liệu 6.652 file âm thanh quoc_dung của Thầy:
+- Ở nhánh bên trái, toàn bộ 6.652 file .wav đơn âm tiết trong kho quoc_dung được đưa qua tầng Transformer của Wav2Vec2 để trích xuất vùng lõi 0,45 giây thành 6.652 vector đặc trưng 768 chiều đã chuẩn hóa L2, nạp vào chỉ mục FAISS IndexFlatIP. Kho dữ liệu của Thầy đóng vai trò là Ngân hàng mẫu phát âm chuẩn tham chiếu.
+- Ở nhánh giữa và phải, module syllable_decoder tự động giải mã tên file VNI (ví dụ d-uuoong2 thành chữ "đường", tách phụ âm, vần và dấu thanh từ 0 đến 5) để nạp vào bảng syllable_labels và audio_samples trong SQLite.
+- Hai tầng FAISS và SQLite liên kết chặt chẽ 1-1 qua khóa chính sample_id. Đồng thời, SQLite còn quản lý bảng confusion_rules gồm 102 quy tắc ngữ cảnh phương ngữ và bảng canonical_lexicon chứa 1.564 biến thể địa danh, từ vay mượn được mở rộng tự động từ 963 thực thể gốc.
+-->
+
+---
+transition: slide-left
+---
+
+# 5. Thuật toán Đối soát Ngữ âm, Chuẩn hóa Địa danh & Học Nhãn
+
+<div class="grid grid-cols-12 gap-3.5 text-xs mt-1 text-slate-900">
+  <div class="col-span-7 p-3 rounded-xl bg-emerald-50 border-2 border-emerald-300 flex flex-col justify-between">
     <div>
       <div class="flex items-center justify-between mb-2">
-        <span class="font-extrabold text-xl text-blue-950">Lược đồ 5 Bảng CSDL Quan hệ SQLite</span>
+        <span class="font-extrabold text-[17px] text-emerald-950">Thuật toán Trọng tài 2 Giai đoạn (Tầng 4 MMDBMS)</span>
+        <span class="badge-pill px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 text-[10px]">FAISS + SQLite</span>
       </div>
-      <div class="space-y-1.5">
-        <div class="p-2 rounded-lg bg-white border-l-4 border-blue-600 border border-slate-300 flex items-center justify-between">
-          <span class="font-extrabold text-blue-900 w-48 shrink-0">1. Bảng Nhãn âm tiết</span>
-          <span class="text-slate-700 text-[11.5px] flex-1">Từ điển âm tiết tiếng Việt có dấu, gốc không dấu, dấu thanh &amp; cờ ưu tiên</span>
+      <div class="space-y-1.5 mb-2">
+        <div class="p-2 rounded-lg bg-white border border-emerald-300">
+          <div class="font-extrabold text-[12.5px] text-emerald-950">Giai đoạn 1: Sửa lỗi Phương ngữ Mức Âm tiết (Cohort + Late Fusion)</div>
+          <div class="text-[11.5px] text-slate-700 leading-snug mt-0.5">
+            • <b>Khóa bảo vệ Code-Switching:</b> Giữ nguyên từ mượn tiếng Anh (<code>laptop</code>, <code>checklist</code>, <code>item</code>).<br/>
+            • <b>Khoanh vùng Phonetic Cohort:</b> Lọc nhóm biến âm Nam Bộ (<i>th↔h, r↔g, tr↔ch, -t↔-c</i>) trước khi truy vấn Cosine trên <b>FAISS 768-D</b> để triệt tiêu nhiễu khác giọng người nói.<br/>
+            • <b>Tòa án Trọng tài SQLite (<code>confusion_rules</code>):</b> Kiểm tra từ liền kề trái/phải và duyệt sửa khi:
+          </div>
+          <div class="formula-box mt-1 font-mono font-bold text-[11.5px] bg-emerald-50/60">
+            S_hybrid = 0,50 × Sim_FAISS + B_ctx(left, right) &ge; 0,40 &nbsp;➔&nbsp; VD: "ngập tràn [hấp ➔ thắp] lên" (0,89)
+          </div>
         </div>
-        <div class="p-2 rounded-lg bg-emerald-50/70 border-l-4 border-emerald-600 border border-emerald-300 flex items-center justify-between">
-          <span class="font-extrabold text-emerald-900 w-48 shrink-0">2. Bảng Mẫu âm thanh vật lý</span>
-          <span class="text-slate-800 text-[11.5px] font-semibold flex-1">Quản lý 6.652 mẫu thu âm • <b>Đồng bộ khóa 1–1 với Chỉ mục Vector FAISS</b></span>
-        </div>
-        <div class="p-2 rounded-lg bg-white border-l-4 border-amber-500 border border-slate-300 flex items-center justify-between">
-          <span class="font-extrabold text-amber-900 w-48 shrink-0">3. Bảng Quy tắc biến âm</span>
-          <span class="text-slate-700 text-[11.5px] flex-1">Bộ nhớ cặp từ nhầm lẫn kèm ngữ cảnh từ đứng trước / đứng sau</span>
-        </div>
-        <div class="p-2 rounded-lg bg-white border-l-4 border-purple-600 border border-slate-300 flex items-center justify-between">
-          <span class="font-extrabold text-purple-900 w-48 shrink-0">4. Bảng Từ điển chuẩn hóa</span>
-          <span class="text-slate-700 text-[11.5px] flex-1">Ánh xạ cụm âm vị sang tên riêng &amp; từ vay mượn chuẩn (<i>Đắk Lắk, cafe</i>)</span>
-        </div>
-        <div class="p-2 rounded-lg bg-white border-l-4 border-rose-600 border border-slate-300 flex items-center justify-between">
-          <span class="font-extrabold text-rose-900 w-48 shrink-0">5. Bảng Nhật ký đánh giá</span>
-          <span class="text-slate-700 text-[11.5px] flex-1">Lưu vết lịch sử nhận diện, tỷ lệ lỗi từ (WER), lỗi dấu thanh &amp; thời gian xử lý</span>
+        <div class="p-2 rounded-lg bg-white border border-purple-300">
+          <div class="font-extrabold text-[12.5px] text-purple-950">Giai đoạn 2: Chuẩn hóa Địa danh &amp; Từ mượn (7-gram ➔ 1-gram ITN)</div>
+          <div class="text-[11.5px] text-slate-700 leading-snug mt-0.5">
+            • Quét cửa sổ trượt từ <b>7-gram xuống 1-gram</b> trên bảng <code>canonical_lexicon</code> (<b>1.564 mẫu</b>).<br/>
+            • <b>Khóa âm vị bất biến <code>_to_phonetic_key</code>:</b> Quy đồng <i>“đắc lắc / đát lát / đắt lác”</i> về khóa <code>đac1 lac1</code> ➔ đổi thành <b>“Đắk Lắk”</b> và gộp mốc thời gian: <code>Start = Start(đắc), End = End(lắc)</code>.
+          </div>
         </div>
       </div>
     </div>
-    <div class="mt-2.5 p-2.5 rounded-xl bg-teal-900 text-white flex items-center justify-between">
-      <div>
-        <div class="font-extrabold text-[15px] text-teal-200">Đồng bộ với Chỉ mục Vector Âm học FAISS (6.652 Vector 768-D)</div>
-        <div class="text-[14px]">Truy vấn lân cận ngữ âm kết hợp lọc siêu dữ liệu chỉ mất <b>0,2 ms / từ</b></div>
+    <div class="grid grid-cols-3 gap-1.5 text-[11.5px] font-bold text-center">
+      <div class="p-1.5 rounded-lg bg-white border border-emerald-300">
+        <span class="text-red-700 line-through">“hấp lên / hư hả”</span><br/>
+        <span class="text-emerald-800 font-extrabold">➔ “thắp lên / thư thả”</span>
+      </div>
+      <div class="p-1.5 rounded-lg bg-white border border-purple-300">
+        <span class="text-red-700 line-through">“đát lát / con tum”</span><br/>
+        <span class="text-purple-800 font-extrabold">➔ “Đắk Lắk / Kon Tum”</span>
+      </div>
+      <div class="p-1.5 rounded-lg bg-white border border-blue-300">
+        <span class="text-red-700 line-through">“cà phê / chết lại”</span><br/>
+        <span class="text-blue-800 font-extrabold">➔ “cafe / check lại”</span>
       </div>
     </div>
   </div>
-</div>
-
-<!--
-[2:45 - 3:30 | 45 giây]
-Slide 5 mô tả cách nhóm chuyển hóa kho 6.652 tệp âm tiết rời rạc thành Hệ cơ sở dữ liệu đa phương tiện hai tầng:
-- Ở cột bên trái, mỗi mẫu thu âm mã hóa VNI được giải mã tự động sang chữ Quốc ngữ chuẩn, bóc tách rõ âm đầu, vần, âm cuối, dấu thanh và trích xuất thành vector đặc trưng 768 chiều chuẩn hóa L2.
-- Ở cột bên phải, siêu dữ liệu được tổ chức thành 5 bảng quan hệ trong SQLite: Bảng Nhãn âm tiết, Bảng Mẫu âm thanh vật lý, Bảng Quy tắc biến âm theo ngữ cảnh, Bảng Từ điển chuẩn hóa thực thể và Bảng Nhật ký đánh giá.
-Đặc biệt, khóa chính của Bảng Mẫu âm thanh được đồng bộ 1-1 với định danh vector trong FAISS, cho phép truy vấn chéo giữa ngữ nghĩa quan hệ và độ tương đồng âm học chỉ trong 0,2 mili-giây mỗi từ.
--->
-
----
-transition: slide-left
----
-
-# 5. Đối sánh Lân cận Ngữ âm & Học nhãn Tức thì (Giải quyết Vấn đề 3 & 4)
-
-<div class="grid grid-cols-2 gap-4 text-xs mt-1 text-slate-900">
-  <div class="p-3.5 rounded-xl bg-emerald-50 border-2 border-emerald-300 flex flex-col justify-between">
+  <div class="col-span-5 p-3 rounded-xl bg-rose-50 border-2 border-rose-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-xl text-emerald-950">3. Đối sánh Ngữ âm &amp; Chuẩn hóa Thực thể</span>
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-extrabold text-[17px] text-rose-950">Bổ sung Nhãn Tức thì (&lt; 0,2s)</span>
+        <span class="badge-pill px-2 py-0.5 rounded bg-rose-200 text-rose-900 text-[10px]">Zero Fine-tuning</span>
       </div>
-      <div class="space-y-2 mb-3">
-        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-start gap-2.5">
-          <span class="font-black text-emerald-700 text-sm shrink-0">B1:</span>
-          <div>
-            <div class="font-extrabold text-[13px] leading-snug text-emerald-950">Khoanh vùng ứng viên biến âm vùng miền</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Lọc nhóm từ có hoán âm đầu (<i>r↔g, th↔h, tr↔ch</i>) &amp; âm cuối (<i>-t↔-c</i>)</div>
-          </div>
+      <div class="space-y-1.5 mb-2">
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-xs shrink-0">B1:</span>
+          <div class="text-[11.5px] leading-snug"><b class="text-rose-950">Auto-Slice Sóng âm:</b> Chọn <code>word_index</code> bị sai trên Web UI ➔ Tự cắt đoạn <code>[Start, End]</code> lưu thành file <code>.wav</code> chuẩn 16kHz.</div>
         </div>
-        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-start gap-2.5">
-          <span class="font-black text-emerald-700 text-sm shrink-0">B2:</span>
-          <div>
-            <div class="font-extrabold text-[13px] leading-snug text-emerald-950">Kết hợp điểm tương đồng FAISS + Ngữ cảnh</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Tổng hợp độ giống giọng đọc trên FAISS với quy tắc từ liền kề trong SQLite</div>
-          </div>
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-xs shrink-0">B2:</span>
+          <div class="text-[11.5px] leading-snug"><b class="text-rose-950">Nạp nóng Vector FAISS:</b> Trích xuất vector 768-D, gọi <code>index.add_with_ids()</code> ngay trên RAM &amp; lưu đĩa.</div>
         </div>
-        <div class="p-2 rounded-lg bg-white border border-emerald-300 flex items-start gap-2.5">
-          <span class="font-black text-emerald-700 text-sm shrink-0">B3:</span>
-          <div>
-            <div class="font-extrabold text-[13px] leading-snug text-emerald-950">Chuẩn hóa thực thể theo khung âm vị</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Quy đồng các biến thể phát âm về tên địa danh và từ vay mượn chuẩn</div>
-          </div>
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-xs shrink-0">B3:</span>
+          <div class="text-[11.5px] leading-snug"><b class="text-rose-950">Cập nhật SQLite:</b> Bật cờ <code>is_hotword=1</code> và tự sinh quy tắc ngữ cảnh (<code>boost=0.40</code>) vào <code>confusion_rules</code>.</div>
+        </div>
+        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
+          <span class="font-black text-rose-700 text-xs shrink-0">B4:</span>
+          <div class="text-[11.5px] leading-snug"><b class="text-rose-950">Mở rộng Từ điển:</b> Hỗ trợ thêm trực tiếp địa danh/từ mượn mới trên Web UI hoặc đồng bộ từ file CSV.</div>
         </div>
       </div>
     </div>
-    <div class="p-2.5 rounded-xl bg-white border-2 border-emerald-400">
-      <div class="text-[14px] font-bold text-emerald-900 mb-1.5">Minh họa sửa lỗi thực tế từ Thực nghiệm (Trước ➔ Sau):</div>
-      <div class="grid grid-cols-2 gap-1.5 text-[13.5px]">
-        <div class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 flex flex-col justify-center">
-          <span class="text-red-700 line-through">“hấp lên / hầm lặng”</span>
-          <span class="font-extrabold text-emerald-800">➔ “thắp lên / thầm lặng”</span>
-        </div>
-        <div class="px-2 py-1 rounded bg-emerald-50 border border-emerald-200 flex flex-col justify-center">
-          <span class="text-red-700 line-through">“nét hư hả”</span>
-          <span class="font-extrabold text-emerald-800">➔ “nét thư thả”</span>
-        </div>
-        <div class="px-2 py-1 rounded bg-purple-50 border border-purple-200 flex flex-col justify-center">
-          <span class="text-red-700 line-through">“một ly phim”</span>
-          <span class="font-extrabold text-purple-800">➔ “một ly phin”</span>
-        </div>
-        <div class="px-2 py-1 rounded bg-purple-50 border border-purple-200 flex flex-col justify-center">
-          <span class="text-red-700 line-through">“chết lại / cà phê”</span>
-          <span class="font-extrabold text-purple-800">➔ “check lại / cafe”</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="p-3.5 rounded-xl bg-rose-50 border-2 border-rose-300 flex flex-col justify-between">
-    <div>
-      <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-xl text-rose-950">4. Vòng lặp Học nhãn Tức thì</span>
-      </div>
-      <div class="space-y-1.5 mb-3">
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
-          <span class="font-black text-rose-700 text-sm shrink-0">B1:</span>
-          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Tách đoạn sóng âm của từ sai</p>Cắt chính xác theo mốc thời gian từ</span>
-        </div>
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
-          <span class="font-black text-rose-700 text-sm shrink-0">B2:</span>
-          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Đánh dấu từ khóa ưu tiên</p>Bật cờ ưu tiên cho nhãn đúng trong SQLite</span>
-        </div>
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
-          <span class="font-black text-rose-700 text-sm shrink-0">B3:</span>
-          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Chèn nóng vector 768-D vào FAISS</p>Bổ sung trực tiếp ngay trên RAM</span>
-        </div>
-        <div class="p-2 rounded-lg bg-white border border-rose-300 flex items-center gap-2">
-          <span class="font-black text-rose-700 text-sm shrink-0">B4:</span>
-          <span class="text-[12.5px] font-medium text-slate-800 leading-snug"><p class="font-extrabold text-rose-950">Lưu quy tắc ngữ cảnh vào SQLite</p>Ghi nhớ cặp từ đứng liền trước/sau</span>
-        </div>
-      </div>
-    </div>
-    <div class="p-3 rounded-xl bg-rose-900 text-white">
-      <div class="text-[11px] text-rose-200 font-semibold mb-1">Thực nghiệm dạy lại từ sai trên giao diện Web:</div>
-      <div class="flex items-center justify-between text-xs font-bold mb-1">
+    <div class="p-2.5 rounded-xl bg-rose-900 text-white">
+      <div class="text-[11px] text-rose-200 font-semibold mb-0.5">Thực nghiệm dạy lại từ thiếu nhãn trên Web UI:</div>
+      <div class="flex items-center justify-between text-[11.5px] font-bold mb-1">
         <span>Sửa: <i>“chạy theo <u class="text-amber-300">lược</u> thích”</i></span>
-        <span>➔ Dạy nhãn đúng: <b class="text-emerald-300">“lượt”</b></span>
+        <span>➔ Nhãn đúng: <b class="text-emerald-300">“lượt”</b></span>
       </div>
-      <div class="px-2.5 py-1 rounded bg-rose-950/80 border border-rose-400 text-[11px] flex items-center justify-between">
-        <span>Tự động thêm <b>Vector #6.653</b><br> (Cosine <b>0,965</b>)</span>
-        <span class="text-emerald-300 font-extrabold">➔ Nhận đúng 100% ngay sau đó</span>
+      <div class="px-2 py-1 rounded bg-rose-950/80 border border-rose-400 text-[10.5px] flex items-center justify-between">
+        <span>Sinh <b>Vector #6.653</b> (Cosine <b>0,965</b>)</span>
+        <span class="text-emerald-300 font-extrabold">➔ Nhận đúng 100% tức thì!</span>
       </div>
     </div>
   </div>
 </div>
 
 <!--
-[3:30 - 4:10 | 40 giây]
-Slide 6 trình bày cơ chế giải quyết thách thức phương ngữ và học bổ sung nhãn tức thì:
-- Ở cột bên trái, thay vì tìm kiếm mù quáng trên toàn bộ CSDL, hệ thống khoanh vùng các ứng viên biến âm vùng miền như r sang g, th sang h, kết hợp điểm tương đồng FAISS với ngữ cảnh từ liền kề và chuẩn hóa theo khung âm vị. Nhờ đó các lỗi như "mưa gào", "hành công", "đắc lắc", "cà phê" được sửa chính xác thành "mưa rào", "thành công", "Đắk Lắk" và "cafe".
-- Ở cột bên phải là vòng lặp học nhãn tức thì 4 bước khi người dùng sửa một từ sai: tự động cắt đoạn sóng âm của từ đó, đánh dấu từ khóa ưu tiên, chèn nóng vector 768 chiều mới vào FAISS và lưu quy tắc ngữ cảnh vào SQLite. Thực nghiệm sửa từ "lược thích" thành "lượt thích" tự động sinh mẫu vector thứ 6.653 với độ tương đồng 0,965 và nhận diện đúng 100% ở lần chạy tiếp theo.
+[3:25 - 4:15 | 50 giây]
+Slide 6 trình bày chi tiết thuật toán đối soát tại Tầng 4 và cơ chế học nhãn tức thì:
+- Ở cột bên trái là thuật toán Trọng tài 2 giai đoạn:
+  + Giai đoạn 1 sửa lỗi phương ngữ mức âm tiết: Sau khi khóa bảo vệ các từ tiếng Anh như laptop, checklist, hệ thống không tìm mù quáng trên toàn bộ 6.652 vector mà khoanh vùng vào Nhóm lân cận ngữ âm (Phonetic Cohort) theo quy luật biến âm như th sang h, r sang g. Khi FAISS trả về ứng viên "thắp" với độ tương đồng 0,88, Tòa án trọng tài SQLite sẽ kiểm tra ngữ cảnh từ liền kề và tính điểm lai ghép S_hybrid. Chỉ khi S_hybrid đạt từ 0,40 trở lên mới duyệt sửa "hấp" thành "thắp", ngăn chặn tuyệt đối lỗi sửa ẩu.
+  + Giai đoạn 2 chuẩn hóa địa danh và từ vay mượn: Quét cửa sổ trượt từ 7-gram xuống 1-gram kết hợp Khóa âm vị bất biến. Nhờ đó dù người nói đọc là "đắc lắc" hay "đát lát", tất cả đều quy về khóa âm vị đac1 lac1 để đổi thành "Đắk Lắk", "con tum" thành "Kon Tum", "cà phê" thành "cafe" và gộp lại mốc thời gian [Start, End].
+- Ở cột bên phải là vòng lặp Bổ sung nhãn tức thì trong 4 bước: Khi phát hiện một từ sai hoặc thiếu nhãn trên Web UI, hệ thống tự cắt đoạn sóng âm [Start, End] lưu thành file .wav, trích xuất vector 768 chiều nạp thẳng vào FAISS trong RAM và ghi luật ngữ cảnh vào SQLite, giúp nhận diện đúng 100% chỉ sau 0,2 giây.
 -->
 
 ---
 transition: slide-left
 ---
 
-# 6. Kết quả Thực nghiệm & Kết luận
+# 6. Kết quả Thực nghiệm (8 Mẫu Kiểm thử) & Live Demo
 
-<div class="grid grid-cols-4 gap-3 mb-2.5 text-center">
+<div class="grid grid-cols-4 gap-3 mb-2 text-center">
   <div class="p-2 rounded-xl bg-sky-50 border-2 border-sky-400">
-    <div class="text-lg font-black text-sky-800">8,7% ➔ 0,0%</div>
-    <div class="text-[11px] font-bold text-slate-700">Câu đọc ngắt chữ (44,9s ➔ 12,8s)</div>
+    <div class="text-lg font-black text-sky-800">8,70% ➔ 0,00%</div>
+    <div class="text-[11px] font-bold text-slate-700">Đọc ngắt từng chữ (44,9s ➔ 12,8s)</div>
   </div>
   <div class="p-2 rounded-xl bg-emerald-50 border-2 border-emerald-400">
-    <div class="text-lg font-black text-emerald-800">3,8% ➔ 2,3%</div>
-    <div class="text-[11px] font-bold text-slate-700">Phương ngữ Nam Bộ (Đúng 97,7%)</div>
+    <div class="text-lg font-black text-emerald-800">3,79% ➔ 2,27%</div>
+    <div class="text-[11px] font-bold text-slate-700">Phương ngữ Nam Bộ (Đúng 97,73%)</div>
   </div>
   <div class="p-2 rounded-xl bg-purple-50 border-2 border-purple-400">
-    <div class="text-lg font-black text-purple-800">23,8% ➔ 17,5%</div>
-    <div class="text-[11px] font-bold text-slate-700">Giao tiếp &amp; Từ mượn (Sửa 5 cụm)</div>
+    <div class="text-lg font-black text-purple-800">23,75% ➔ 17,50%</div>
+    <div class="text-[11px] font-bold text-slate-700">Đa thực thể (Đắk Lắk, cafe, laptop)</div>
   </div>
   <div class="p-2 rounded-xl bg-amber-50 border-2 border-amber-400">
-    <div class="text-lg font-black text-amber-800">25,0% ➔ 15,0%</div>
-    <div class="text-[11px] font-bold text-slate-700">Câu ngắn Thực thể &amp; Địa danh</div>
+    <div class="text-lg font-black text-amber-800">&lt; 0,2 giây</div>
+    <div class="text-[11px] font-bold text-slate-700">Học nhãn mới tức thì (Zero Train)</div>
   </div>
 </div>
 
-<table class="w-full text-xs border-collapse mb-2.5 bg-white border-2 border-slate-300 rounded-lg overflow-hidden text-slate-900">
+<table class="w-full text-xs border-collapse mb-2 bg-white border-2 border-slate-300 rounded-lg overflow-hidden text-slate-900">
   <thead>
     <tr class="border-b-2 border-slate-300 text-left bg-slate-100">
-      <th class="text-slate-900">Kịch bản kiểm thử tiêu biểu (Trong 8 mẫu thực nghiệm)</th>
+      <th class="text-slate-900">Kịch bản kiểm thử thực nghiệm (8 mẫu âm thanh thực tế)</th>
       <th class="text-center text-slate-900">Thời lượng</th>
       <th class="text-center text-red-800">WhisperX gốc</th>
-      <th class="text-center text-emerald-800">Hệ thống <br> đề xuất</th>
-      <th class="text-center text-blue-800">Hiệu quả khắc phục</th>
+      <th class="text-center text-emerald-800">Hybrid + MMDBMS</th>
+      <th class="text-center text-blue-800">Hiệu quả khắc phục (ERR)</th>
     </tr>
   </thead>
   <tbody>
     <tr class="border-b border-slate-200">
-      <td class="font-bold">1. Giọng đọc liền mạch &amp; ngắt nhịp ngắn (Mẫu 1 &amp; 3 • 23 &amp; 16 từ)</td>
+      <td class="font-bold">1. Đọc liền mạch chuẩn &amp; ngắt nhịp ngắn (<code>ai_continuous</code>, <code>khoa_voice</code>)</td>
       <td class="text-center font-semibold">6,6s &amp; 15,2s</td>
-      <td class="text-center font-semibold">0,0%</td>
-      <td class="text-center font-extrabold text-emerald-800">0,0%</td>
-      <td class="text-center text-blue-800 font-bold">Bảo toàn 100% độ chuẩn</td>
+      <td class="text-center font-semibold">0,00% / 18,75%</td>
+      <td class="text-center font-extrabold text-emerald-800">0,00% / 6,25%</td>
+      <td class="text-center text-blue-800 font-bold">Bảo toàn 100% / Giảm 66,7% lỗi</td>
     </tr>
     <tr class="border-b border-slate-200 bg-emerald-50/70">
-      <td class="font-bold">2. Giọng đọc ngắt từng chữ rời rạc (Mẫu 2 • 23 từ)</td>
+      <td class="font-bold">2. Đọc ngắt từng chữ rời rạc (<code>ai_sentence_paced.wav</code> • 23 từ)</td>
       <td class="text-center font-semibold">44,9s ➔ 12,8s</td>
       <td class="text-center text-red-800 font-bold">8,70%</td>
       <td class="text-center font-extrabold text-emerald-800">0,00%</td>
       <td class="text-center text-emerald-800 font-extrabold">Khắc phục 100% lỗi (RTF 0,084)</td>
     </tr>
     <tr class="border-b border-slate-200">
-      <td class="font-bold">3. Đoạn văn phương ngữ Nam Bộ (Mẫu 4 • 132 từ: <i>hấp➔thắp, hầm➔thầm</i>)</td>
+      <td class="font-bold">3. Phương ngữ Nam Bộ (<code>dung_voice.wav</code> • 132 từ: <i>hấp➔thắp, hầm➔thầm</i>)</td>
       <td class="text-center font-semibold">48,65 giây</td>
       <td class="text-center text-red-800 font-bold">3,79%</td>
       <td class="text-center font-extrabold text-emerald-800">2,27%</td>
-      <td class="text-center text-blue-800 font-bold">Khắc phục 40,1% lỗi (Đúng 97,7%)</td>
+      <td class="text-center text-blue-800 font-bold">Khắc phục 40,1% lỗi (Acc: 97,73%)</td>
     </tr>
     <tr class="border-b border-slate-200 bg-emerald-50/70">
-      <td class="font-bold">4. Giao tiếp công việc &amp; từ mượn (Mẫu 5 • 80 từ: <i>ly phin, check, thư thả</i>)</td>
+      <td class="font-bold">4. Văn học &amp; Giao tiếp đa thực thể (<code>hem_311_1..3</code>: <i>Đắk Lắk, cafe, ly phin, check</i>)</td>
       <td class="text-center font-semibold">35,97 giây</td>
       <td class="text-center text-red-800 font-bold">23,75%</td>
       <td class="text-center font-extrabold text-emerald-800">17,50%</td>
       <td class="text-center text-emerald-800 font-extrabold">Khắc phục 26,3% lỗi (Sửa 5 cụm)</td>
     </tr>
     <tr class="border-b border-slate-200">
-      <td class="font-bold">5. Câu giao tiếp ngắn chứa thực thể &amp; từ mượn (Mẫu 6 • 20 từ: <i>cafe</i>)</td>
+      <td class="font-bold">5. Câu thực tế Địa danh &amp; Từ vay mượn (<code>khoa_voice_cafe_daklak.mp3</code>)</td>
       <td class="text-center font-semibold">8,18 giây</td>
       <td class="text-center text-red-800 font-bold">25,00%</td>
       <td class="text-center font-extrabold text-emerald-800">15,00%</td>
       <td class="text-center text-blue-800 font-bold">Khắc phục 40,0% lỗi</td>
     </tr>
     <tr class="bg-blue-100/90 font-extrabold border-t-2 border-slate-300">
-      <td class="text-slate-900">Trung bình nhóm 6 mẫu tiêu biểu (và toàn tập 8 mẫu / 508 từ)</td>
-      <td class="text-center">RTF ≈ 0,23</td>
-      <td class="text-center text-red-800">10,21% (10,82%)</td>
-      <td class="text-center text-emerald-800">5,80% (7,74%)</td>
-      <td class="text-center text-blue-900">Giảm 43,2% (28,5%) tổng lỗi</td>
+      <td class="text-slate-900">Trung bình toàn hệ thống (Đo lường chuẩn ICASSP: WER / CER / TER / RTF)</td>
+      <td class="text-center">RTF ≈ 0,16</td>
+      <td class="text-center text-red-800">11,96%</td>
+      <td class="text-center text-emerald-800">6,19% (Acc: 93,81%)</td>
+      <td class="text-center text-blue-900">Khắc phục ~56% tổng lỗi từ</td>
     </tr>
   </tbody>
 </table>
-<div class="pb-2"></div>
-  <div class="p-2 rounded-xl bg-blue-50 border-2 border-blue-300 flex items-center justify-between gap-3">
-    <div>
-      <div class="font-extrabold text-blue-950 mb-0.5">Phát hiện thực nghiệm &amp; Kết luận cốt lõi</div>
-      <div class="text-[11.5px] text-slate-800">
-        • <b>Quy tắc CSDL (MMDBMS) sửa đúng 100% biến âm</b> (<i>hự➔thực, trung➔truân, bụng➔bộn, cuối➔cúi</i>), an toàn hơn hẳn tự sửa bằng CTC tự do.<br/>
-        • Đồng bộ 1–1 SQLite &amp; FAISS 768-D (0 MB VRAM phụ) • Căn chỉnh chuẩn ±15 ms • Học nhãn tức thì &lt; 50 ms.
-      </div>
+
+<div class="p-2.5 rounded-xl bg-gradient-to-r from-blue-900 to-indigo-900 text-white flex items-center justify-between gap-3">
+  <div>
+    <div class="font-extrabold text-[13.5px] text-amber-300">🚀 CHUYỂN SANG DEMO TRỰC TIẾP TRÊN GIAO DIỆN WEB GRADIO (3 KỊCH BẢN):</div>
+    <div class="text-[11.5px] text-slate-100 mt-0.5">
+      <b>(1)</b> Chuẩn hóa Địa danh &amp; Từ mượn (<code>Đắk Lắk</code>, <code>Kon Tum</code>, <code>cafe</code>) &nbsp;•&nbsp;
+      <b>(2)</b> Sửa biến âm Nam Bộ (<code>hấp ➔ thắp</code>) &nbsp;•&nbsp;
+      <b>(3)</b> Bổ sung nhãn mới tức thì (&lt; 0,2s)
     </div>
   </div>
+</div>
 
 <!--
-[4:10 - 5:00 | 50 giây]
-Slide cuối cùng tổng hợp kết quả thực nghiệm đối sánh trên 8 mẫu âm thanh kiểm thử thực tế (508 từ):
-- Ở câu đọc ngắt từng chữ kéo dài 44,9 giây, thuật toán nén khoảng lặng thu gọn về 12,8 giây và giảm tỷ lệ lỗi từ 8,70% xuống 0,00%.
-- Ở đoạn văn 132 từ phương ngữ Nam Bộ, CSDL tự động sửa chính xác các từ biến âm như "hấp" thành "thắp", "hầm" thành "thầm", kéo WER từ 3,79% xuống chỉ còn 2,27% (độ chính xác đạt 97,73%).
-- Ở kịch bản giao tiếp công việc có từ vay mượn và biến âm, hệ thống sửa đúng đồng thời "cà phê" thành "cafe", "ly phim" thành "ly phin", "chết lại" thành "check lại" và "hư hả" thành "thư thả", giảm lỗi từ 23,75% xuống 17,50%.
-- Đặc biệt, phân tích trên 2 mẫu văn học Hán-Việt chứng minh tầng quy tắc CSDL MMDBMS sửa đúng 100% các từ biến âm, an toàn và chính xác hơn hẳn việc dùng mô hình CTC tự do không ràng buộc từ điển.
-Nhóm xin cảm ơn Thầy và các bạn đã lắng nghe, rất mong nhận được ý kiến đóng góp ạ!
+[4:15 - 5:00 | 45 giây]
+Slide cuối cùng tổng hợp kết quả thực nghiệm đối sánh A/B Testing trên toàn bộ 8 mẫu âm thanh kiểm thử thực tế:
+- Ở câu đọc ngắt từng chữ kéo dài 44,9 giây, thuật toán nén khoảng lặng đã giảm tỷ lệ lỗi từ 8,70% về 0,00%.
+- Ở đoạn văn 132 từ phương ngữ Nam Bộ của bạn Dửng, CSDL tự động sửa chính xác các từ biến âm như "hấp" thành "thắp", "hầm" thành "thầm", kéo WER xuống chỉ còn 2,27% (độ chính xác đạt 97,73%).
+- Ở các kịch bản chứa địa danh và từ vay mượn như "Đắk Lắk", "Kon Tum", "cafe", "ly phin", "check lại", tầng CSDL MMDBMS đã tự động chuẩn hóa chính xác, giúp giảm tỷ lệ lỗi WER trung bình toàn hệ thống từ 11,96% xuống còn 6,19% (độ chính xác đạt 93,81%) với tốc độ xử lý nhanh gấp 6 lần thời gian thực (RTF = 0,16).
+Ngay sau đây, nhóm em xin phép chuyển sang màn hình Giao diện Web Demo trực tiếp để chạy thử nghiệm và mời Thầy kiểm tra ạ!
 -->

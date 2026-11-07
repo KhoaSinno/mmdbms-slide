@@ -96,6 +96,21 @@ html.dark {
   line-height: 1.35 !important;
 }
 
+/* Keep Mermaid diagrams crisp and properly scaled inside 16:9 Slidev slides */
+.slidev-layout .mermaid {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 0.2rem !important;
+  margin-bottom: 0.2rem !important;
+}
+
+.slidev-layout .mermaid svg {
+  max-height: 315px !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
 /*
  * CRITICAL FIX for Slidev v51 Goto.vue bug:
  * When showGotoDialog is false, Slidev only applies `-top-20` (-80px), which hides the
