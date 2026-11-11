@@ -162,7 +162,7 @@ Slide 3 trình bày sơ đồ kiến trúc hệ thống lai ghép 4 tầng theo 
 transition: slide-left
 ---
 
-# 3. Phân cấp 3 Vùng Ngưỡng Điểm Tin Cậy CTC & Cơ Chế Kiểm Định
+# 3. Ngưỡng điểm tin cậy CTC & Cơ chế kiểm định
 
 <div class="grid grid-cols-3 gap-3.5 text-xs mt-1 text-slate-900">
   <!-- CỘT 1: VÙNG 1 -->
