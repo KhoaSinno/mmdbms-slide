@@ -159,109 +159,109 @@ Slide 3 trình bày sơ đồ kiến trúc hệ thống lai ghép 4 tầng theo 
 -->
 
 ---
-hide: true
 transition: slide-left
 ---
 
-# 3. Tiền xử lý Tín hiệu DSP & Kiểm định Wav2Vec2-VI (Tầng 1 – 3)
+# 3. Phân cấp 3 Vùng Ngưỡng Điểm Tin Cậy CTC & Cơ Chế Kiểm Định
 
-<div class="grid grid-cols-2 gap-4 text-xs mt-1 text-slate-900">
-  <div class="p-3.5 rounded-xl bg-sky-50 border-2 border-sky-300 flex flex-col justify-between">
+<div class="grid grid-cols-3 gap-3.5 text-xs mt-1 text-slate-900">
+  <!-- CỘT 1: VÙNG 1 -->
+  <div class="p-3 rounded-xl bg-emerald-50 border-2 border-emerald-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-xl text-sky-950">1. Nén khoảng lặng thích nghi + TimeMap</span>
+      <div class="flex items-center justify-between gap-1 mb-2">
+        <span class="font-extrabold text-[15px] text-emerald-950">1. Vùng An Toàn</span>
+        <span class="px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 font-black text-[11px]">CTC &ge; 0,85</span>
       </div>
-      <div class="space-y-2">
-        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
-          <span class="font-black text-sky-700 text-sm shrink-0">B1:</span>
-          <div>
-            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Phát hiện khoảng nghỉ dài &ge; 320 ms</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Tự động nhận diện câu đọc rời rạc từng chữ (tỷ lệ lặng &ge; 35%)</div>
-          </div>
+      <div class="p-2 rounded-lg bg-white border border-emerald-300 mb-2">
+        <div class="text-[11px] font-bold text-emerald-900 mb-1">Hiện tượng âm học:</div>
+        <div class="text-[11.5px] leading-snug text-slate-700">Người nói <b>tròn vành rõ chữ</b>, âm vị bật hơi và nguyên âm khớp hoàn hảo trên phổ tần số 20ms.</div>
+      </div>
+      <div class="space-y-1.5">
+        <div class="p-2 rounded-lg bg-white border border-emerald-200">
+          <div class="font-bold text-[11.5px] text-emerald-950">Hành vi hệ thống:</div>
+          <div class="text-[11px] text-slate-600 mt-0.5"><b>Giữ nguyên 100% từ Whisper</b>, bỏ qua hoàn toàn truy vấn FAISS &amp; SQLite.</div>
         </div>
-        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
-          <span class="font-black text-sky-700 text-sm shrink-0">B2:</span>
-          <div>
-            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Thu gọn mượt về 140 ms + Đệm biên 60 ms</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Nối liền mạch ngữ cảnh cho Whisper, giữ trọn phụ âm cuối (<i>-p, -t, -c</i>)</div>
-          </div>
-        </div>
-        <div class="p-2.5 rounded-lg bg-white border border-sky-300 flex items-start gap-2.5">
-          <span class="font-black text-sky-700 text-sm shrink-0">B3:</span>
-          <div>
-            <div class="font-extrabold text-[13.5px] leading-snug text-sky-950">Nội suy tuyến tính từng khúc (Piecewise TimeMap)</div>
-            <div class="text-[12px] leading-snug text-slate-600 mt-0.5">Ánh xạ ngược mốc <code>[Start, End]</code> từ audio nén về đúng thời gian gốc</div>
-          </div>
+        <div class="p-2 rounded-lg bg-white border border-emerald-200">
+          <div class="font-bold text-[11.5px] text-emerald-950">Mục tiêu tối ưu:</div>
+          <div class="text-[11px] text-slate-600 mt-0.5">Tiết kiệm VRAM/GPU, đạt tốc độ xử lý siêu nhanh.</div>
         </div>
       </div>
     </div>
-    <div class="mt-3 p-3 rounded-xl bg-sky-900 text-white">
-      <div class="text-[11px] text-sky-200 font-semibold mb-1">Thực nghiệm trên file đọc ngắt từng chữ (<code>ai_sentence_paced.wav</code>):</div>
-      <div class="flex items-center justify-between text-xs font-extrabold">
-        <span>Thời lượng: 44,9s ➔ 12,8s (RTF 0,084)</span>
-        <span class="px-2.5 py-0.5 rounded bg-emerald-400 text-slate-950">Lỗi WER: 8,70% ➔ 0,00%</span>
-      </div>
+    <div class="mt-2.5 p-2 rounded-lg bg-emerald-700 text-white text-center font-bold text-[11px]">
+      ➔ Pass-through
     </div>
   </div>
-  <div class="p-3.5 rounded-xl bg-indigo-50 border-2 border-indigo-300 flex flex-col justify-between">
+
+  <!-- CỘT 2: VÙNG 2 -->
+  <div class="p-3 rounded-xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
     <div>
-      <div class="flex items-center justify-between mb-2.5">
-        <span class="font-extrabold text-xl text-indigo-950">2. Validate bằng Điểm Vật lý CTC 20ms</span>
+      <div class="flex items-center justify-between gap-1 mb-2">
+        <span class="font-extrabold text-[15px] text-amber-950">2. Vùng Nghi Vấn</span>
+        <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-black text-[11px]">0,60 &le; CTC &lt; 0,85</span>
       </div>
-      <div class="p-2.5 rounded-lg bg-white border border-indigo-300 mb-2.5">
-        <div class="text-[11.5px] font-bold text-indigo-900 mb-1.5">Cơ chế đo xác suất âm vị mỗi 20ms sóng âm (50 khung/giây):</div>
-        <div class="flex items-center justify-between gap-1.5 text-center font-extrabold text-[11px]">
-          <div class="p-2 rounded-lg bg-slate-100 border border-slate-300 flex-1">
-            Tầng ẩn Wav2Vec2<br/><span class="text-indigo-700">Vector 768-D</span>
-          </div>
-          <span class="text-indigo-700 text-sm">➔</span>
-          <div class="p-2 rounded-lg bg-indigo-100 border-2 border-indigo-400 text-indigo-950 flex-[1.35]">
-            Khôi phục 21 tầng<br/><code>feature_transform</code>
-          </div>
-          <span class="text-indigo-700 text-sm">➔</span>
-          <div class="p-2 rounded-lg bg-emerald-100 border-2 border-emerald-400 text-emerald-950 flex-1">
-            Chấm điểm CTC<br/>&amp; Biên <code>[Start, End]</code>
+      <div class="p-2 rounded-lg bg-white border border-amber-300 mb-2">
+        <div class="text-[11px] font-bold text-amber-900 mb-1">Hiện tượng âm học:</div>
+        <div class="text-[11.5px] leading-snug text-slate-700"><b>Biến âm phương ngữ Nam Bộ</b> (<i>thắp &harr; hấp, thầm &harr; hầm</i>). Whisper đoán gần đúng vần nhưng âm vị chưa dứt khoát.</div>
+      </div>
+      <div class="space-y-1.5">
+        <div class="p-2 rounded-lg bg-white border border-amber-200">
+          <div class="font-bold text-[11.5px] text-amber-950">Truy vấn Cohort FAISS:</div>
+          <div class="text-[11px] text-slate-600 mt-0.5">Cắt sóng âm từ đó, trích 768-D so Top-5 kho chuẩn <b>6.652 từ</b> của Thầy.</div>
+        </div>
+        <div class="p-2 rounded-lg bg-white border border-amber-200">
+          <div class="font-bold text-[11.5px] text-amber-950">Công thức Late Fusion:</div>
+          <div class="text-[11px] font-mono text-amber-900 mt-0.5">S<sub>hybrid</sub> = 0,50 &times; Sim<sub>FAISS</sub> + B<sub>ctx</sub></div>
+          <div class="text-[10px] text-slate-600">Đạt <b>&ge; 0,40</b> ➔ Thay từ đúng (<i>hấp &rarr; thắp</i>).</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-2.5 p-2 rounded-lg bg-amber-600 text-white text-center font-bold text-[11px]">
+      ➔ Validation
+    </div>
+  </div>
+
+  <!-- CỘT 3: VÙNG 3 -->
+  <div class="p-3 rounded-xl bg-rose-50 border-2 border-rose-300 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between gap-1 mb-2">
+        <span class="font-extrabold text-[15px] text-rose-950">3. Vùng Báo Động Đỏ</span>
+        <span class="px-2 py-0.5 rounded bg-rose-200 text-rose-900 font-black text-[11px]">CTC &lt; 0,60</span>
+      </div>
+      <div class="p-2 rounded-lg bg-white border border-rose-300 mb-2">
+        <div class="text-[11px] font-bold text-rose-900 mb-1">Hiện tượng âm học:</div>
+        <div class="text-[11.5px] leading-snug text-slate-700"><b>Hallucination</b> của Whisper hoặc nuốt trọn âm. Điểm CTC cực thấp</div>
+      </div>
+      <div class="space-y-1.5">
+        <div class="p-2 rounded-lg bg-white border border-rose-200">
+          <div class="font-bold text-[11.5px] text-rose-950">Đồng thuận Âm học Kép:</div>
+          <div class="text-[11px] text-slate-600 mt-0.5">Bỏ qua từ của Whisper, dùng trực tiếp <b>Argmax CTC Logits</b> của <code>Wav2Vec2-VI</code> ghi đè lại.</div>
+        </div>
+        <div class="p-2 rounded-lg bg-white border border-rose-200">
+          <div class="font-bold text-[11.5px] text-rose-950">Bộ tứ Chốt chặn An toàn:</div>
+          <div class="text-[10px] text-slate-600 mt-0.5">
+            &bull; Dài &le; 3 từ &nbsp;&bull; Kẹp giữa 2 từ neo<br/>
+            &bull; Chặn từ tiếng Anh &nbsp;&bull; Cấm từ bị dị dạng
           </div>
         </div>
       </div>
-      <table class="w-full text-xs border-collapse bg-white rounded-lg overflow-hidden border-2 border-indigo-300">
-        <thead>
-          <tr class="border-b-2 border-indigo-200 text-left bg-indigo-100">
-            <th class="text-indigo-950">Tiêu chí kỹ thuật</th>
-            <th class="text-red-800">WhisperX gốc</th>
-            <th class="text-emerald-800">Hệ thống đề xuất</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b border-slate-200">
-            <td class="font-bold">Điểm kiểm định CTC</td>
-            <td class="text-red-700 font-bold">0,009 (Suy biến)</td>
-            <td class="font-extrabold text-emerald-800">0,50 – 0,98 (Phân loại chuẩn)</td>
-          </tr>
-          <tr class="border-b border-slate-200 bg-emerald-50/40">
-            <td class="font-bold">Độ chính xác biên từ</td>
-            <td class="text-red-700 font-bold">Lệch dồn về 0,3s</td>
-            <td class="font-extrabold text-emerald-800">Khớp chuẩn ±15 ms</td>
-          </tr>
-          <tr>
-            <td class="font-bold">VRAM trích xuất 768-D</td>
-            <td class="text-red-700 font-bold">+1,2 GB (Tải 2 lần)</td>
-            <td class="font-extrabold text-emerald-800">0 MB (Dùng chung Encoder)</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-    <div class="mt-3 p-2.5 rounded-xl bg-indigo-900 text-white text-center text-xs font-bold">
-      Từ bị Whisper đoán mò lệch sóng âm ➔ Điểm CTC tụt (&lt; 0,85) ➔ Chuyển sang CSDL sửa!
+    <div class="mt-2.5 p-2 rounded-lg bg-rose-700 text-white text-center font-bold text-[11px]">
+      ➔ Wav2Vec2 CTC Override
     </div>
   </div>
 </div>
 
+<!-- <div class="mt-2.5 px-3 py-1.5 rounded-lg bg-indigo-900 text-white flex items-center justify-between text-xs font-semibold">
+  <span>💡 <b>Quy tắc then chốt:</b> Phân cấp 3 vùng giúp triệt tiêu hoàn toàn lỗi <i>"Lợn lành chữa thành lợn què"</i> (Zero Over-correction).</span>
+  <span class="text-indigo-200 font-mono text-[11px]">Formula: CTC<sub>word</sub> = (1/T) &sum; max P(c|x<sub>t</sub>)</span>
+</div> -->
+
 <!--
 [1:50 - 2:35 | 45 giây]
-Slide 4 đi sâu vào cơ chế xử lý tín hiệu và dùng Wav2Vec2-VI để validate kết quả của Whisper:
-- Ở cột bên trái, khi người dùng đọc ngắt từng chữ rời rạc, các khoảng lặng dài trên 320ms được thu gọn mượt về 140ms kèm đệm biên 60ms để không mất phụ âm cuối, sau đó nội suy trả lại đúng tọa độ gốc qua bảng TimeMap. Thực nghiệm trên file đọc ngắt chữ dài 44,9 giây đã rút ngắn thời gian xử lý xuống 12,8 giây và kéo tỷ lệ lỗi WER từ 8,7% về 0%.
-- Ở cột bên phải, nhóm khôi phục đủ 21 tầng biến đổi đặc trưng tiếng Việt cho mô hình Wav2Vec2-VI. Cứ mỗi 20ms sóng âm (tức 50 lần mỗi giây), mô hình đo trực tiếp xác suất âm vị trên phổ tần số. Nếu Whisper đoán mò một từ không khớp với dao động vật lý thực tế, điểm CTC của từ đó sẽ tụt xuống dưới 0,85, lập tức kích hoạt tầng CSDL Đa phương tiện vào cuộc.
+Thưa Thầy, ở Slide 3, nhóm em trình bày chi tiết về cơ chế Phân cấp 3 Vùng Ngưỡng Điểm Tin Cậy CTC:
+- Vùng 1 (CTC từ 0,85 trở lên - Vùng An toàn): Khi người nói phát âm chuẩn xác, dõng dạc, hệ thống giữ nguyên 100% kết quả của Whisper và bỏ qua truy vấn CSDL để tiết kiệm VRAM và đạt tốc độ siêu nhanh RTF khoảng 0,08.
+- Vùng 2 (CTC từ 0,60 đến dưới 0,85 - Vùng Nghi vấn): Đây là vùng đặc trưng của biến âm phương ngữ Nam Bộ như 'thắp' thành 'hấp'. Hệ thống kích hoạt mô-đun MMDBMS Late Fusion: cắt đoạn sóng âm, trích vector 768 chiều so với kho 6.652 từ chuẩn của Thầy quoc_dung trong FAISS, kết hợp với điểm bảo lãnh ngữ cảnh trong SQLite theo công thức Late Fusion để sửa đúng thành 'thắp'.
+- Vùng 3 (CTC tụt sâu dưới 0,60 - Vùng Báo động Đỏ): Đây là lúc Whisper bị ảo giác bịa từ hoặc người nói nuốt trọn âm. Hệ thống kích hoạt cơ chế Đồng thuận Âm học Kép: bỏ qua từ của Whisper, lấy trực tiếp giải mã CTC của Wav2Vec2-VI ghi đè lại, thông qua Bộ tứ Chốt chặn An toàn nghiêm ngặt để đảm bảo câu văn luôn chuẩn xác 100%.
 -->
 
 ---
